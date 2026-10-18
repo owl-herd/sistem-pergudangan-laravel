@@ -25,3 +25,11 @@ Thumbs.db
 
 .env.testing
 /storage/app/private/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
