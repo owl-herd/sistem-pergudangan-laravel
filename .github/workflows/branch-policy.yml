@@ -3,7 +3,6 @@ name: Kebijakan Branch dan Commit
 on:
   pull_request:
     types: [opened, synchronize, reopened, edited]
-    branches: [develop, staging, main, master]
 
 permissions:
   contents: read
@@ -26,6 +25,10 @@ jobs:
           TUJUAN: ${{ github.base_ref }}
         run: |
           set -euo pipefail
+          if [[ ! "$TUJUAN" =~ ^(develop|staging|main|master)$ ]]; then
+            echo "Pull request hanya boleh menuju develop, staging, main, atau master. Tujuan: $TUJUAN"
+            exit 1
+          fi
           if [[ "$TUJUAN" == "develop" && "$SUMBER" =~ ^(feature|fix|bugfix|hotfix|refactor|chore|docs|test)/[a-z0-9][a-z0-9._-]*$ ]]; then exit 0; fi
           if [[ "$TUJUAN" == "staging" && "$SUMBER" == "develop" ]]; then exit 0; fi
           if [[ "$TUJUAN" =~ ^(main|master)$ && "$SUMBER" == "staging" ]]; then exit 0; fi

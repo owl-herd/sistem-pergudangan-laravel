@@ -3,6 +3,12 @@
 Ruleset berikut harus dibuat pada pengaturan repository GitHub karena aturan ini adalah
 konfigurasi server, bukan file yang otomatis aktif dari repository.
 
+## Ruleset `nama-branch-wajib`
+
+Buat atau import `.github/rulesets/nama-branch-wajib.json` terlebih dahulu. Ruleset ini berlaku
+untuk semua branch dan menolak branch yang tidak bernama `develop`, `staging`, `main`, `master`,
+atau tidak memakai awalan pekerjaan yang disetujui.
+
 ## Ruleset `alur-branch-produksi`
 
 - Target: `develop`, `staging`, `main`, dan `master`.
@@ -29,6 +35,10 @@ feature/*, fix/*, bugfix/*, hotfix/*, refactor/*, chore/*, docs/*, test/* -> dev
 develop -> staging
 staging -> main/master
 ```
+
+Workflow ini berjalan pada semua pull request. Pull request ke branch lain akan gagal, begitu
+juga pull request yang melewati salah satu tahap. Dengan demikian branch yang valid pun tetap
+harus mengikuti urutan promosi.
 
 Jalankan pemeriksaan lokal sebelum membuka pull request. Ruleset GitHub dan workflow harus
 diaktifkan pada repository sebelum branch `develop`, `staging`, dan `main/master` dipakai tim.
