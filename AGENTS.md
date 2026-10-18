@@ -2,11 +2,12 @@
 
 ## Navigasi Dokumentasi
 
-- [PRD](prd.md) — kebutuhan dan tujuan produk
-- [Architecture](architecture.md) — rancangan teknis sistem
-- [Skill Guide](skill.md) — panduan kerja agent/developer
-- [Workflow](workflow.md) — alur kerja pengembangan
-- [TODO](todo.md) — daftar pekerjaan dan status
+- [PRD](PRD.md) — kebutuhan dan tujuan produk
+- [Architecture](ARCHITECTURE.md) — rancangan teknis sistem
+- [Skill Guide](SKILL.md) — panduan kerja agent/developer
+- [Workflow](WORKFLOW.md) — alur kerja pengembangan
+- [Designs](DESIGNS.md) — pedoman konsistensi antarmuka
+- [TODO](TODO.md) — daftar pekerjaan dan status
 
 ## Strategi branch dan commit
 
@@ -20,8 +21,12 @@
   `local`, ke `staging` dari `develop`, dan ke `main` atau `master` dari `staging`.
 - Setiap perubahan yang bermakna harus memiliki commit tersendiri. Gunakan bahasa Indonesia
   pada subjek commit dengan format `<jenis>: <ringkasan bahasa Indonesia>`.
+- Branch pekerjaan tidak dikunci: developer boleh membuat commit dan push berkali-kali pada
+  branch tersebut. Pull request pertama dibuat saat menggabungkan branch pekerjaan ke `local`.
 - Jangan menggabungkan pull request jika pemeriksaan branch, commit, keamanan, test, dan lint
   belum lulus.
+- CI keamanan wajib memeriksa file sensitif, secret, pola kerentanan dengan Semgrep, dan analisis
+  PHP/JavaScript dengan CodeQL.
 
 ## Batas migrasi dan data
 

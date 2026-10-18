@@ -1,5 +1,5 @@
 {
-  "name": "production-branch-flow",
+  "name": "protected-branch-flow",
   "target": "branch",
   "enforcement": "active",
   "bypass_actors": [],
@@ -35,10 +35,13 @@
       "parameters": {
         "do_not_enforce_on_create": false,
         "required_status_checks": [
-          { "context": "Validasi alur branch dan commit" },
-          { "context": "Test dan Pint Laravel" },
-          { "context": "Build frontend" },
-          { "context": "Playwright Tests / test" }
+          { "context": "Kebijakan Branch dan Commit / Validasi alur branch dan commit" },
+          { "context": "Pemeriksaan Aplikasi / Test dan Pint Laravel" },
+          { "context": "Pemeriksaan Aplikasi / Build frontend" },
+          { "context": "Playwright Tests / test" },
+          { "context": "Security / Sensitive file guard" },
+          { "context": "Security / Semgrep" },
+          { "context": "Security / CodeQL (javascript-typescript)" }
         ],
         "strict_required_status_checks_policy": true
       }

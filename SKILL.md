@@ -3,16 +3,16 @@
 ## Navigasi Dokumentasi
 
 - [AGENTS](AGENTS.md) — aturan wajib proyek
-- [PRD](prd.md) — kebutuhan dan tujuan produk
-- [Architecture](architecture.md) — rancangan teknis sistem
-- [Workflow](workflow.md) — alur kerja pengembangan
-- [TODO](todo.md) — daftar pekerjaan dan status
+- [PRD](PRD.md) — kebutuhan dan tujuan produk
+- [Architecture](ARCHITECTURE.md) — rancangan teknis sistem
+- [Workflow](WORKFLOW.md) — alur kerja pengembangan
+- [TODO](TODO.md) — daftar pekerjaan dan status
 
 ## 1. Tujuan
 
 Dokumen ini adalah panduan kerja agent atau developer saat membaca, mengubah, menguji, dan mendokumentasikan aplikasi Sistem Pergudangan berbasis Laravel 12.
 
-Panduan ini melengkapi `AGENTS.md`, `prd.md`, dan `architecture.md`. Jika terjadi konflik, aturan pengguna dan `AGENTS.md` menjadi acuan utama.
+Panduan ini melengkapi `AGENTS.md`, `PRD.md`, dan `ARCHITECTURE.md`. Jika terjadi konflik, aturan pengguna dan `AGENTS.md` menjadi acuan utama.
 
 ## 2. Konteks Produk
 

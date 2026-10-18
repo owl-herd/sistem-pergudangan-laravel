@@ -3,10 +3,10 @@
 ## Navigasi Dokumentasi
 
 - [AGENTS](AGENTS.md) — aturan wajib proyek
-- [PRD](prd.md) — kebutuhan dan tujuan produk
-- [Architecture](architecture.md) — rancangan teknis sistem
-- [Skill Guide](skill.md) — panduan kerja agent/developer
-- [Workflow](workflow.md) — alur kerja pengembangan
+- [PRD](PRD.md) — kebutuhan dan tujuan produk
+- [Architecture](ARCHITECTURE.md) — rancangan teknis sistem
+- [Skill Guide](SKILL.md) — panduan kerja agent/developer
+- [Workflow](WORKFLOW.md) — alur kerja pengembangan
 
 Legenda status: `Todo` · `In Progress` · `Blocked` · `Done`
 
@@ -114,8 +114,8 @@ Legenda status: `Todo` · `In Progress` · `Blocked` · `Done`
 
 ## Prioritas P2 — Dokumentasi
 
-- [ ] `Todo` Lengkapi `prd.md` berdasarkan hasil inspeksi fitur aktual.
-- [ ] `Todo` Lengkapi `architecture.md` dengan nama file dan diagram aktual setelah struktur proyek diverifikasi.
+- [ ] `Todo` Lengkapi `PRD.md` berdasarkan hasil inspeksi fitur aktual.
+- [ ] `Todo` Lengkapi `ARCHITECTURE.md` dengan nama file dan diagram aktual setelah struktur proyek diverifikasi.
 - [ ] `Todo` Dokumentasikan matriks role dan izin.
 - [ ] `Todo` Dokumentasikan daftar endpoint legacy.
 - [ ] `Todo` Dokumentasikan prosedur menjalankan aplikasi secara aman.
