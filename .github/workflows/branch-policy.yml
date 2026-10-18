@@ -1,0 +1,53 @@
+name: Kebijakan Branch dan Commit
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+    branches: [develop, staging, main, master]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  policy:
+    name: Validasi alur branch dan commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout seluruh riwayat
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validasi arah promosi
+        shell: bash
+        env:
+          SUMBER: ${{ github.head_ref }}
+          TUJUAN: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$TUJUAN" == "develop" && "$SUMBER" =~ ^(feature|fix|bugfix|hotfix|refactor|chore|docs|test)/[a-z0-9][a-z0-9._-]*$ ]]; then exit 0; fi
+          if [[ "$TUJUAN" == "staging" && "$SUMBER" == "develop" ]]; then exit 0; fi
+          if [[ "$TUJUAN" =~ ^(main|master)$ && "$SUMBER" == "staging" ]]; then exit 0; fi
+          echo "Arah merge tidak sesuai: $SUMBER -> $TUJUAN"
+          exit 1
+
+      - name: Validasi format commit berbahasa Indonesia
+        shell: bash
+        env:
+          DASAR: ${{ github.event.pull_request.base.sha }}
+          UJUNG: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          git log --format='%s' "$DASAR..$UJUNG" > commits.txt
+          test -s commits.txt
+          while IFS= read -r pesan; do
+            [[ "$pesan" =~ ^(feat|fix|bugfix|hotfix|refactor|chore|docs|test|perf)(\([a-z0-9._-]+\))?:[[:space:]][^[:space:]].*$ ]] || {
+              echo "Format commit tidak valid: $pesan"
+              exit 1
+            }
+            [[ ! "$pesan" =~ (WIP|wip|fix[[:space:]]lagi|update$) ]] || {
+              echo "Commit sementara atau terlalu umum ditolak: $pesan"
+              exit 1
+            }
+          done < commits.txt

@@ -1,0 +1,41 @@
+name: Pemeriksaan Aplikasi
+
+on:
+  push:
+    branches: [develop, staging, main, master]
+  pull_request:
+    branches: [develop, staging, main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  laravel:
+    name: Test dan Pint Laravel
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Siapkan PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo, pdo_mysql
+          tools: composer
+      - name: Pasang dependensi PHP
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Jalankan Laravel Pint
+        run: vendor/bin/pint --test
+      - name: Jalankan test Laravel
+        run: php artisan test
+
+  frontend:
+    name: Build frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
