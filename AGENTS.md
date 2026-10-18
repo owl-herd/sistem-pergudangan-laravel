@@ -2,12 +2,12 @@
 
 ## Navigasi Dokumentasi
 
-- [PRD](prd.md) — kebutuhan dan tujuan produk
-- [Architecture](architecture.md) — rancangan teknis sistem
-- [Skill Guide](skill.md) — panduan kerja agent/developer
-- [Workflow](workflow.md) — alur kerja pengembangan
-- [Designs](designs.md) — pedoman konsistensi antarmuka
-- [TODO](todo.md) — daftar pekerjaan dan status
+- [PRD](PRD.md) — kebutuhan dan tujuan produk
+- [Architecture](ARCHITECTURE.md) — rancangan teknis sistem
+- [Skill Guide](SKILL.md) — panduan kerja agent/developer
+- [Workflow](WORKFLOW.md) — alur kerja pengembangan
+- [Designs](DESIGNS.md) — pedoman konsistensi antarmuka
+- [TODO](TODO.md) — daftar pekerjaan dan status
 
 ## Strategi branch dan commit
 

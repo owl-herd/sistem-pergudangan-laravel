@@ -3,11 +3,11 @@
 ## Navigasi Dokumentasi
 
 - [AGENTS](AGENTS.md) — aturan wajib proyek
-- [PRD](prd.md) — kebutuhan dan tujuan produk
-- [Architecture](architecture.md) — rancangan teknis sistem
-- [Skill Guide](skill.md) — panduan kerja agent/developer
-- [Designs](designs.md) — pedoman konsistensi antarmuka
-- [TODO](todo.md) — daftar pekerjaan dan status
+- [PRD](PRD.md) — kebutuhan dan tujuan produk
+- [Architecture](ARCHITECTURE.md) — rancangan teknis sistem
+- [Skill Guide](SKILL.md) — panduan kerja agent/developer
+- [Designs](DESIGNS.md) — pedoman konsistensi antarmuka
+- [TODO](TODO.md) — daftar pekerjaan dan status
 
 ## 1. Tujuan
 
@@ -16,10 +16,10 @@ Dokumen ini mendefinisikan alur kerja standar untuk perubahan fitur, perbaikan b
 Workflow ini harus dibaca bersama:
 
 - `AGENTS.md` untuk aturan wajib proyek;
-- `prd.md` untuk kebutuhan produk;
-- `architecture.md` untuk batas tanggung jawab komponen;
-- `skill.md` untuk panduan kerja agent atau developer.
-- `designs.md` untuk token visual, komponen, dan aturan konsistensi UI.
+- `PRD.md` untuk kebutuhan produk;
+- `ARCHITECTURE.md` untuk batas tanggung jawab komponen;
+- `SKILL.md` untuk panduan kerja agent atau developer.
+- `DESIGNS.md` untuk token visual, komponen, dan aturan konsistensi UI.
 
 ## 2. Status Pekerjaan
 
@@ -45,7 +45,7 @@ Backlog -> Ready -> In Progress -> Verification -> Done
 3. Identifikasi hasil akhir yang diminta.
 4. Pastikan perubahan berada dalam ruang lingkup aplikasi Sistem Pergudangan.
 5. Jika kebutuhan material masih ambigu, tanyakan hanya keputusan yang benar-benar diperlukan.
-6. Catat tugas pada `todo.md` bila pekerjaan terdiri dari beberapa langkah.
+6. Catat tugas pada `TODO.md` bila pekerjaan terdiri dari beberapa langkah.
 
 ### Output
 
@@ -107,7 +107,7 @@ commit. CI mengulangi pemeriksaan ini agar hasil lokal tidak menjadi satu-satuny
 ## 4. Tahap 2 — Pemeriksaan Awal
 
 1. Baca `AGENTS.md` sebelum melakukan perubahan.
-2. Baca bagian relevan dari `prd.md`, `architecture.md`, dan `skill.md`.
+2. Baca bagian relevan dari `PRD.md`, `ARCHITECTURE.md`, dan `SKILL.md`.
 3. Periksa status perubahan lokal agar pekerjaan pengguna tidak tertimpa.
 4. Cari route, controller, service, model, middleware, helper, view, test, dan konfigurasi yang terkait.
 5. Jika alur menyangkut perilaku bisnis, bandingkan dengan aplikasi sumber di `../sistem-pergudangan`.
