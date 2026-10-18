@@ -22,14 +22,16 @@
         <li class="nav-item"><a class="nav-link" href="#pengelolaan-gudang">Gudang proyek</a></li>
         <li class="nav-item"><a class="nav-link" href="#akun-legacy">Akun legacy</a></li>
         <li class="nav-item"><a class="nav-link" href="#riwayat">Riwayat perubahan</a></li>
+        <li class="nav-item"><a class="nav-link" href="aktivitas.php">Aktivitas gudang</a></li>
       </ul>
-      @include('warehouse.partials.account-panel', ['accountLocation' => 'Pengelolaan sistem', 'accountRole' => 'Super Admin', 'accountNotificationCount' => $notificationInbox['count']])
+      @include('warehouse.partials.account-panel', ['accountLocation' => 'Pengelolaan sistem', 'accountRole' => 'Super Admin', 'accountNotificationCount' => $notificationInbox['count'], 'accountNotifications' => $notificationInbox['items']])
     </div>
   </div>
 </nav>
 <main class="container-fluid px-3 px-lg-4 py-4">
 @include('warehouse.notifications')
   <?php if($flashMessage): ?><div class="alert alert-<?=e($flashMessage[1]==='error'?'danger':$flashMessage[1])?> alert-dismissible fade show" role="alert"><?=e($flashMessage[0])?><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div><?php endif ?>
+  @include('warehouse.partials.location-stock-summary')
   <section class="mb-4">
     <span class="section-kicker">Administrasi sistem</span>
     <h1 class="h2 fw-bold text-primary-emphasis mt-1">Pengelolaan akun dan role</h1>

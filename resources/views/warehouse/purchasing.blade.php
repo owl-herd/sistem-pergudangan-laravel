@@ -10,11 +10,20 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css?v=<?=filemtime(public_path('assets/style.css'))?>">
 </head>
-<body>
-<nav class="navbar navbar-dark dashboard-navbar sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi purchasing">
+<body class="warehouse-dashboard-top">
+<nav class="navbar navbar-expand-xl navbar-dark dashboard-navbar dashboard-top-navigation sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi purchasing">
   <div class="container-fluid px-lg-4">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="purchasing.php"><img src="assets/logo.png" alt=""><span class="fw-bold">Trikasa Energi Tama</span></a>
-    @include('warehouse.partials.account-panel', ['accountLocation' => 'Pembelian', 'accountRole' => 'Purchasing', 'accountNotificationCount' => $unreadNotificationCount])
+    <a class="navbar-brand d-flex align-items-center gap-2" href="purchasing.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small>Pusat kendali Â· Purchasing</small></span></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#purchasingNavigation" aria-controls="purchasingNavigation" aria-expanded="false" aria-label="Buka navigasi purchasing"><span class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse" id="purchasingNavigation">
+      <ul class="navbar-nav me-auto ms-lg-4 gap-lg-2 section-nav py-2 py-lg-0" aria-label="Bagian purchasing">
+        <li class="nav-item"><a class="nav-link active" aria-current="location" href="#ringkasan">Ringkasan</a></li>
+        <li class="nav-item"><a class="nav-link" href="#stok">Stok per gudang</a></li>
+        <li class="nav-item"><a class="nav-link" href="#permintaan">Permintaan pembelian<?php if($pendingCount>0): ?> <span class="badge rounded-pill text-bg-warning ms-1"><?=$pendingCount?></span><?php endif ?></a></li>
+        <li class="nav-item"><a class="nav-link" href="#notifikasi">Notifikasi<?php if($unreadNotificationCount>0): ?> <span class="badge rounded-pill text-bg-danger ms-1"><?=$unreadNotificationCount?></span><?php endif ?></a></li>
+      </ul>
+      @include('warehouse.partials.account-panel', ['accountLocation' => 'Pembelian', 'accountRole' => 'Purchasing', 'accountNotificationCount' => $unreadNotificationCount, 'accountNotifications' => $unreadNotifications])
+    </div>
   </div>
 </nav>
 <main class="container-fluid px-3 px-lg-4 py-4">
@@ -44,10 +53,16 @@
     </div>
   </section>
 
+  @include('warehouse.partials.location-stock-summary')
+
   <section class="section-anchor app-card card shadow-sm mb-4" id="stok"><div class="card-body p-3 p-lg-4">
     <div class="mb-3"><span class="section-kicker">Informasi persediaan</span><h2 class="h4 fw-bold text-primary-emphasis mt-1 mb-0">Stok per gudang</h2><p class="text-secondary mb-0">Informasi ini hanya untuk dibaca. Penyesuaian stok dilakukan melalui alur gudang.</p></div>
-    <div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Gudang</th><th>Kode</th><th>Barang</th><th>Jenis</th><th>Stok tersedia</th><th>Minimum</th></tr></thead><tbody>
-      <?php foreach($stockRows as $stock): ?><tr><td><?=e($stock['gudang'])?></td><td><?=e($stock['kode'])?></td><td class="fw-semibold"><?=e($stock['barang'])?></td><td><?=e($categoryLabels[$stock['kategori_barang']]??'—')?></td><td><?=number_format((int)$stock['stok'])?> <?=e($stock['satuan'])?></td><td><?=number_format((int)$stock['stok_minimum'])?></td></tr><?php endforeach ?>
+    <div class="row g-2 align-items-end mb-3">
+      <div class="col-sm-6 col-lg-4"><label class="form-label small fw-semibold" for="purchasingWarehouseFilter">Pilih gudang</label><select class="form-select" id="purchasingWarehouseFilter" data-warehouse-filter aria-controls="purchasingStockTable"><option value="">Semua gudang</option><?php foreach($warehouseStockSummary as $warehouse): ?><option value="<?=e($warehouse['nama'])?>"><?=e($warehouse['nama'])?></option><?php endforeach ?></select></div>
+      <div class="col-sm-6 col-lg-5"><label class="form-label small fw-semibold" for="purchasingStockSearch">Cari barang</label><input class="form-control" id="purchasingStockSearch" type="search" placeholder="Kode atau nama barang" autocomplete="off" data-warehouse-search aria-controls="purchasingStockTable"></div>
+    </div>
+    <div class="table-responsive"><table class="table table-hover align-middle mb-0" id="purchasingStockTable"><thead><tr><th>Gudang</th><th>Kode</th><th>Barang</th><th>Jenis</th><th>Stok tersedia</th><th>Minimum</th></tr></thead><tbody>
+      <?php foreach($stockRows as $stock): ?><tr data-warehouse-row data-warehouse-name="<?=e($stock['gudang'])?>"><td><?=e($stock['gudang'])?></td><td><?=e($stock['kode'])?></td><td class="fw-semibold"><?=e($stock['barang'])?></td><td><?=e($categoryLabels[$stock['kategori_barang']]??'—')?></td><td><?=number_format((int)$stock['stok'])?> <?=e($stock['satuan'])?></td><td><?=number_format((int)$stock['stok_minimum'])?></td></tr><?php endforeach ?>
       <?php if(!$stockRows): ?><tr><td colspan="6" class="text-center text-secondary py-4">Belum ada barang atau gudang aktif.</td></tr><?php endif ?>
     </tbody></table></div>
   </div></section>
@@ -90,5 +105,6 @@
   <footer class="site-footer rounded-3 p-3 mt-4 text-center">Trikasa Energi Tama · Informasi pergudangan</footer>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script defer src="assets/app.js?v=<?=filemtime(public_path('assets/app.js'))?>"></script>
 </body>
 </html>

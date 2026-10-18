@@ -5,6 +5,6 @@
 <div class="col-md-4"><label class="form-label" for="jenis_laporan">Jenis laporan</label><select class="form-select" name="jenis_laporan" id="jenis_laporan">@foreach($reportTypes as $value => $label)<option value="{{ $value }}" @selected($value === 'stok')>{{ $label }}</option>@endforeach</select></div>
 <div class="col-md-3"><label class="form-label" for="laporan_mulai">Dari tanggal</label><input class="form-control" type="date" id="laporan_mulai" name="tanggal_mulai" value="{{ $start }}" required></div>
 <div class="col-md-3"><label class="form-label" for="laporan_akhir">Sampai tanggal</label><input class="form-control" type="date" id="laporan_akhir" name="tanggal_akhir" value="{{ $end }}" required></div>
-<div class="col-md-2"><button class="btn btn-primary w-100" type="submit" name="tampilan" value="lihat" formtarget="_blank">Lihat laporan</button><button class="btn btn-outline-primary w-100 mt-2" type="submit">Unduh PDF</button></div>
+<div class="col-md-2"><button class="btn btn-primary w-100" type="submit" name="tampilan" value="lihat" formtarget="_blank">Lihat laporan</button><button class="btn btn-outline-primary w-100 mt-2" type="submit">Unduh PDF</button><button class="btn btn-outline-secondary w-100 mt-2" type="submit" formaction="laporan_csv.php">Unduh CSV</button></div>
 </form></div></section>
 @endif

@@ -175,6 +175,61 @@ document.addEventListener('DOMContentLoaded', () => {
       select.addEventListener('change', () => form.requestSubmit());
     });
   });
+  const stockSearch = document.querySelector('[data-stock-search]');
+  const stockTable = document.querySelector('#stockTable');
+  if (stockSearch && stockTable) {
+    const stockRows = [...stockTable.querySelectorAll('[data-stock-row]')];
+    const stockCount = document.querySelector('#stockTableCount');
+    const emptyState = stockTable.querySelector('[data-stock-filter-empty]');
+    const clearSearch = document.querySelector('[data-stock-search-clear]');
+    const updateStockFilter = () => {
+      const query = stockSearch.value.trim().toLocaleLowerCase('id');
+      let visibleCount = 0;
+      stockRows.forEach((row) => {
+        const visible = !query || row.textContent.toLocaleLowerCase('id').includes(query);
+        row.classList.toggle('d-none', !visible);
+        if (visible) visibleCount++;
+      });
+      if (emptyState) emptyState.classList.toggle('d-none', !query || visibleCount > 0);
+      if (stockCount) stockCount.textContent = query
+        ? visibleCount + ' dari ' + stockRows.length + ' baris stok'
+        : stockRows.length + ' baris stok';
+    };
+    stockSearch.addEventListener('input', updateStockFilter);
+    clearSearch?.addEventListener('click', () => {
+      stockSearch.value = '';
+      updateStockFilter();
+      stockSearch.focus();
+    });
+    updateStockFilter();
+  }
+  const purchasingWarehouseFilter = document.querySelector('[data-warehouse-filter]');
+  const purchasingWarehouseSearch = document.querySelector('[data-warehouse-search]');
+  const purchasingStockTable = document.querySelector('#purchasingStockTable');
+  if (purchasingWarehouseFilter && purchasingWarehouseSearch && purchasingStockTable) {
+    const rows = [...purchasingStockTable.querySelectorAll('[data-warehouse-row]')];
+    const summaryRows = [...document.querySelectorAll('[data-location-stock-row]')];
+    const summaryEmpty = document.querySelector('[data-location-stock-empty]');
+    const updatePurchasingStock = () => {
+      const warehouse = purchasingWarehouseFilter.value;
+      const query = purchasingWarehouseSearch.value.trim().toLocaleLowerCase('id');
+      rows.forEach((row) => {
+        const matchesWarehouse = !warehouse || row.dataset.warehouseName === warehouse;
+        const matchesSearch = !query || row.textContent.toLocaleLowerCase('id').includes(query);
+        row.classList.toggle('d-none', !(matchesWarehouse && matchesSearch));
+      });
+      let visibleSummaryCount = 0;
+      summaryRows.forEach((row) => {
+        const visible = !warehouse || row.dataset.warehouseName === warehouse;
+        row.classList.toggle('d-none', !visible);
+        if (visible) visibleSummaryCount++;
+      });
+      summaryEmpty?.classList.toggle('d-none', !warehouse || visibleSummaryCount > 0);
+    };
+    purchasingWarehouseFilter.addEventListener('change', updatePurchasingStock);
+    purchasingWarehouseSearch.addEventListener('input', updatePurchasingStock);
+    updatePurchasingStock();
+  }
   document.querySelectorAll('[data-confirm]').forEach((button) => {
     button.addEventListener('click', (event) => {
       if (!window.confirm(button.dataset.confirm)) event.preventDefault();
