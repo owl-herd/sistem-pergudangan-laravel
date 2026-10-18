@@ -6,6 +6,7 @@
   "conditions": {
     "ref_name": {
       "include": [
+        "refs/heads/local",
         "refs/heads/develop",
         "refs/heads/staging",
         "refs/heads/main",

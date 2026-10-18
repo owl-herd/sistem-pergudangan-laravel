@@ -16,8 +16,8 @@
   `docs/<nama>`, atau `test/<nama>`.
 - Alur integrasi wajib: `branch pekerjaan -> local -> develop -> staging -> main/master`.
   `local` adalah tahap pemeriksaan di komputer developer, bukan branch remote.
-- Pull request hanya boleh mengarah ke `develop` dari branch pekerjaan, ke `staging` dari
-  `develop`, dan ke `main` atau `master` dari `staging`.
+- Pull request hanya boleh mengarah ke `local` dari branch pekerjaan, ke `develop` dari
+  `local`, ke `staging` dari `develop`, dan ke `main` atau `master` dari `staging`.
 - Setiap perubahan yang bermakna harus memiliki commit tersendiri. Gunakan bahasa Indonesia
   pada subjek commit dengan format `<jenis>: <ringkasan bahasa Indonesia>`.
 - Jangan menggabungkan pull request jika pemeriksaan branch, commit, keamanan, test, dan lint

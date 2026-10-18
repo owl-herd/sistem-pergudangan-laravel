@@ -2,9 +2,9 @@ name: Pemeriksaan Aplikasi
 
 on:
   push:
-    branches: [develop, staging, main, master]
+    branches: [local, develop, staging, main, master]
   pull_request:
-    branches: [develop, staging, main, master]
+    branches: [local, develop, staging, main, master]
 
 permissions:
   contents: read

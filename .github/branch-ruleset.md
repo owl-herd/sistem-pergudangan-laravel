@@ -6,13 +6,13 @@ konfigurasi server, bukan file yang otomatis aktif dari repository.
 ## Ruleset `required-branch-names`
 
 Buat atau import `.github/rulesets/required-branch-names.json` terlebih dahulu. Ruleset ini berlaku
-untuk semua branch dan menolak branch yang tidak bernama `develop`, `staging`, `main`, `master`,
+untuk semua branch dan menolak branch yang tidak bernama `local`, `develop`, `staging`, `main`, `master`,
 atau tidak memakai awalan pekerjaan yang disetujui.
 
 ## Ruleset `production-branch-flow`
 
 Buat atau import `.github/rulesets/production-branch-flow.json`. Ruleset ini melindungi branch
-`develop`, `staging`, `main`, dan `master`.
+`local`, `develop`, `staging`, `main`, dan `master`.
 
 - Target: `develop`, `staging`, `main`, dan `master`.
 - Bypass list: kosong atau hanya administrator rilis yang disetujui.
@@ -34,7 +34,8 @@ Buat atau import `.github/rulesets/production-branch-flow.json`. Ruleset ini mel
 Workflow `branch-policy.yml` menegakkan arah berikut:
 
 ```text
-feature/*, fix/*, bugfix/*, hotfix/*, refactor/*, chore/*, docs/*, test/* -> develop
+feature/*, fix/*, bugfix/*, hotfix/*, refactor/*, chore/*, docs/*, test/* -> local
+local -> develop
 develop -> staging
 staging -> main/master
 ```
@@ -44,4 +45,4 @@ juga pull request yang melewati salah satu tahap. Dengan demikian branch yang va
 harus mengikuti urutan promosi.
 
 Jalankan pemeriksaan lokal sebelum membuka pull request. Ruleset GitHub dan workflow harus
-diaktifkan pada repository sebelum branch `develop`, `staging`, dan `main/master` dipakai tim.
+diaktifkan pada repository sebelum branch `local`, `develop`, `staging`, dan `main/master` dipakai tim.

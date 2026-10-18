@@ -79,7 +79,8 @@ Branch terlindungi tidak boleh diubah langsung. Pull request harus mengikuti pas
 
 | Branch sumber | Branch tujuan | Syarat utama |
 | --- | --- | --- |
-| branch pekerjaan | `develop` | pemeriksaan lokal dan CI lulus |
+| branch pekerjaan | `local` | pemeriksaan lokal dan CI lulus |
+| `local` | `develop` | CI lulus dan review disetujui |
 | `develop` | `staging` | CI lulus dan review disetujui |
 | `staging` | `main` atau `master` | CI lulus, review rilis, dan persetujuan pemilik |
 

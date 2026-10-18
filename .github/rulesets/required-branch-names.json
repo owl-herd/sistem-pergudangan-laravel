@@ -16,7 +16,7 @@
         "name": "Allowed branch names",
         "negate": false,
         "operator": "regex",
-        "pattern": "^(develop|staging|main|master|(feature|fix|bugfix|hotfix|refactor|chore|docs|test)/[a-z0-9][a-z0-9._-]*)$"
+        "pattern": "^(local|develop|staging|main|master|(feature|fix|bugfix|hotfix|refactor|chore|docs|test)/[a-z0-9][a-z0-9._-]*)$"
       }
     }
   ]
