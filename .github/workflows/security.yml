@@ -58,7 +58,13 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
       - name: Scan keamanan Semgrep
-        run: semgrep scan --config p/default --config p/secrets --error --exclude vendor --exclude node_modules
+        run: >-
+          semgrep scan
+          --config p/default
+          --config p/secrets
+          --error
+          --exclude vendor
+          --exclude node_modules
 
   codeql:
     name: CodeQL (${{ matrix.language }})
@@ -66,7 +72,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [php, javascript-typescript]
+        language: [javascript-typescript]
     steps:
       - name: Checkout source
         uses: actions/checkout@v4

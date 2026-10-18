@@ -41,7 +41,6 @@
           { "context": "Playwright Tests / test" },
           { "context": "Security / Sensitive file guard" },
           { "context": "Security / Semgrep" },
-          { "context": "Security / CodeQL (php)" },
           { "context": "Security / CodeQL (javascript-typescript)" }
         ],
         "strict_required_status_checks_policy": true

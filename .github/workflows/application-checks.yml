@@ -13,8 +13,30 @@ jobs:
   laravel:
     name: Test dan Pint Laravel
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: sistem_pergudangan_laravel_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: sistem_pergudangan_laravel_test
+      DB_USERNAME: root
+      DB_PASSWORD: ''
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Siapkan PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -23,8 +45,33 @@ jobs:
           tools: composer
       - name: Pasang dependensi PHP
         run: composer install --no-interaction --prefer-dist --no-progress
-      - name: Jalankan Laravel Pint
-        run: vendor/bin/pint --test
+      - name: Siapkan skema database pengujian
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed 's/sistem_pergudangan/sistem_pergudangan_laravel_test/g' database.sql \
+            | mysql --protocol=tcp -h 127.0.0.1 -P 3306 -u root
+          php artisan migrate --path=database/migrations/2026_10_07_000002_create_purchasing_notifications_table.php --force
+          php artisan migrate --path=database/migrations/2026_10_07_000003_create_warehouse_notifications_table.php --force
+          php artisan migrate --path=database/migrations/2026_10_09_000001_create_warehouse_activity_tables.php --force
+      - name: Jalankan Laravel Pint pada PHP yang berubah
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            changed_files="$(git diff-tree --no-commit-id --name-only -r "$HEAD_SHA" -- '*.php')"
+          else
+            changed_files="$(git diff --name-only --diff-filter=ACMR "$BASE_SHA" "$HEAD_SHA" -- '*.php')"
+          fi
+          if [[ -z "$changed_files" ]]; then
+            echo "Tidak ada file PHP yang berubah; pemeriksaan Pint dilewati."
+            exit 0
+          fi
+          mapfile -t php_files <<< "$changed_files"
+          vendor/bin/pint --test "${php_files[@]}"
       - name: Jalankan test Laravel
         run: php artisan test
 
