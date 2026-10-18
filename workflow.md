@@ -6,6 +6,7 @@
 - [PRD](prd.md) — kebutuhan dan tujuan produk
 - [Architecture](architecture.md) — rancangan teknis sistem
 - [Skill Guide](skill.md) — panduan kerja agent/developer
+- [Designs](designs.md) — pedoman konsistensi antarmuka
 - [TODO](todo.md) — daftar pekerjaan dan status
 
 ## 1. Tujuan
@@ -18,6 +19,7 @@ Workflow ini harus dibaca bersama:
 - `prd.md` untuk kebutuhan produk;
 - `architecture.md` untuk batas tanggung jawab komponen;
 - `skill.md` untuk panduan kerja agent atau developer.
+- `designs.md` untuk token visual, komponen, dan aturan konsistensi UI.
 
 ## 2. Status Pekerjaan
 
