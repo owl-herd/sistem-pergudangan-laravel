@@ -3,18 +3,12 @@
 Ruleset berikut harus dibuat pada pengaturan repository GitHub karena aturan ini adalah
 konfigurasi server, bukan file yang otomatis aktif dari repository.
 
-## Ruleset `required-branch-names`
+## Ruleset `protected-branch-flow`
 
-Buat atau import `.github/rulesets/required-branch-names.json` terlebih dahulu. Ruleset ini berlaku
-untuk semua branch dan menolak branch yang tidak bernama `local`, `develop`, `staging`, `main`, `master`,
-atau tidak memakai awalan pekerjaan yang disetujui.
+Buat atau import `.github/rulesets/protected-branch-flow.json`. Ruleset ini hanya melindungi
+branch `local`, `develop`, `staging`, `main`, dan `master`.
 
-## Ruleset `production-branch-flow`
-
-Buat atau import `.github/rulesets/production-branch-flow.json`. Ruleset ini melindungi branch
-`local`, `develop`, `staging`, `main`, dan `master`.
-
-Ruleset ini tidak menargetkan branch pekerjaan. Branch `feature/*`, `fix/*`, `bugfix/*`,
+Ruleset ini tidak menargetkan branch pekerjaan dan tidak menggunakan `~ALL`. Branch `feature/*`, `fix/*`, `bugfix/*`,
 `hotfix/*`, `refactor/*`, `chore/*`, `docs/*`, dan `test/*` tetap dapat menerima commit dan push.
 PR pertama dibuat hanya saat branch pekerjaan siap digabung ke `local`.
 
@@ -35,7 +29,7 @@ PR pertama dibuat hanya saat branch pekerjaan siap digabung ke `local`.
 
 ## Arah pull request
 
-Workflow `branch-policy.yml` menegakkan arah berikut:
+Workflow `branch-policy.yml` menegakkan nama branch dan arah berikut:
 
 ```text
 feature/*, fix/*, bugfix/*, hotfix/*, refactor/*, chore/*, docs/*, test/* -> local

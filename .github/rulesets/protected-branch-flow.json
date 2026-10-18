@@ -1,5 +1,5 @@
 {
-  "name": "production-branch-flow",
+  "name": "protected-branch-flow",
   "target": "branch",
   "enforcement": "active",
   "bypass_actors": [],
