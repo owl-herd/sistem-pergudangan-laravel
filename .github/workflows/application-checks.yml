@@ -49,8 +49,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          sed 's/sistem_pergudangan/sistem_pergudangan_laravel_test/g' database.sql \
-            | mysql --protocol=tcp -h 127.0.0.1 -P 3306 -u root
+          php <<'PHP'
+          <?php
+          $pdo = new PDO('mysql:host=127.0.0.1;port=3306', 'root', '', [
+              PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+          ]);
+          $sql = str_replace(
+              'sistem_pergudangan',
+              'sistem_pergudangan_laravel_test',
+              file_get_contents('database.sql')
+          );
+          foreach (preg_split('/;\\s*(?:\\r?\\n|$)/', $sql) as $statement) {
+              $statement = trim($statement);
+              if ($statement !== '') {
+                  $pdo->exec($statement);
+              }
+          }
+          PHP
           php artisan migrate --path=database/migrations/2026_10_07_000002_create_purchasing_notifications_table.php --force
           php artisan migrate --path=database/migrations/2026_10_07_000003_create_warehouse_notifications_table.php --force
           php artisan migrate --path=database/migrations/2026_10_09_000001_create_warehouse_activity_tables.php --force
