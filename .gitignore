@@ -3,6 +3,8 @@
 .env
 .env.backup
 .env.production
+.env.*
+!.env.example
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -25,6 +27,13 @@ Thumbs.db
 
 .env.testing
 /storage/app/private/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+/secrets/
+/credentials/
 
 # Playwright
 node_modules/

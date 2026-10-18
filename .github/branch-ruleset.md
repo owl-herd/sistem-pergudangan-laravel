@@ -22,7 +22,11 @@ PR pertama dibuat hanya saat branch pekerjaan siap digabung ke `local`.
   - `Validasi alur branch dan commit`;
   - `Test dan Pint Laravel`;
   - `Build frontend`;
-  - `Playwright Tests / test` jika perubahan frontend atau end-to-end terdampak.
+  - `Playwright Tests / test` jika perubahan frontend atau end-to-end terdampak;
+  - `Security / Sensitive file guard`;
+  - `Security / Semgrep`;
+  - `Security / CodeQL (php)`;
+  - `Security / CodeQL (javascript-typescript)`.
 - Wajib branch diperbarui sebelum merge bila target sudah berubah.
 - Tolak force push dan penghapusan branch terlindungi.
 - Aktifkan linear history bila strategi merge tim menggunakan squash atau rebase.

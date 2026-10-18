@@ -276,6 +276,7 @@ Jangan menyelesaikan pekerjaan dengan asumsi yang dapat mengubah perilaku bisnis
 - [ ] subjek commit menggunakan bahasa Indonesia dan format yang disepakati;
 - [ ] test Laravel, Pint, build frontend, dan pemeriksaan Playwright sesuai scope lulus;
 - [ ] tidak ada rahasia, file `.env`, data privat, atau artefak build dalam diff;
+- [ ] pemeriksaan sensitive-file guard, Semgrep, dan CodeQL lulus;
 - [ ] perubahan database, keamanan, akses, stok, dan endpoint legacy sudah direview;
 - [ ] status CI dan review wajib lulus sebelum merge.
 

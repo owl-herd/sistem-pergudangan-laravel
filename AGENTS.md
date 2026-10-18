@@ -25,6 +25,8 @@
   branch tersebut. Pull request pertama dibuat saat menggabungkan branch pekerjaan ke `local`.
 - Jangan menggabungkan pull request jika pemeriksaan branch, commit, keamanan, test, dan lint
   belum lulus.
+- CI keamanan wajib memeriksa file sensitif, secret, pola kerentanan dengan Semgrep, dan analisis
+  PHP/JavaScript dengan CodeQL.
 
 ## Batas migrasi dan data
 
