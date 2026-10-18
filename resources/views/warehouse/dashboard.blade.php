@@ -13,37 +13,56 @@
 <body class="warehouse-dashboard-top">
 <nav class="navbar navbar-expand-xl navbar-dark dashboard-navbar dashboard-top-navigation sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi dashboard">
   <div class="container-fluid px-lg-4">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php"><img src="assets/logo.png" alt=""><span class="fw-bold">Trikasa Energi Tama</span></a>
+    <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small><?=e($warehouseName)?> · <?=e($roleLabel)?></small></span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardNavigation" aria-controls="dashboardNavigation" aria-expanded="false" aria-label="Buka navigasi dashboard"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="dashboardNavigation">
-      <ul class="navbar-nav me-auto ms-lg-4 gap-lg-2 section-nav py-2 py-lg-0">
+      <ul class="navbar-nav me-auto ms-lg-4 gap-lg-2 section-nav py-2 py-lg-0" aria-label="Bagian dashboard">
         <li class="nav-item"><a class="nav-link active" aria-current="location" href="#ringkasan">Ringkasan</a></li>
         <li class="nav-item"><a class="nav-link" href="#stok">Stok gudang</a></li>
         <?php if($role==='admin_gudang'): ?><li class="nav-item"><a class="nav-link" href="#penambahan">Tambah barang</a></li><li class="nav-item"><a class="nav-link" href="#permintaan">Permintaan</a></li><li class="nav-item"><a class="nav-link" href="#pengajuan-pembelian">Pengajuan pembelian</a></li><li class="nav-item"><a class="nav-link" href="#pengiriman">Penerimaan</a></li><li class="nav-item"><a class="nav-link" href="#pengembalian-peralatan">Retur peralatan</a></li><li class="nav-item"><a class="nav-link" href="#pemakaian">Pemakaian</a></li><?php endif ?>
         <?php if($role==='admin_pusat'): ?><li class="nav-item"><a class="nav-link" href="#penambahan">Barang proyek</a></li><li class="nav-item"><a class="nav-link" href="#pengembalian-peralatan">Retur peralatan</a></li><li class="nav-item"><a class="nav-link" href="#permintaan">Permintaan <span class="badge rounded-pill text-bg-warning ms-1"><?=$pending?></span></a></li><li class="nav-item"><a class="nav-link" href="#pengajuan-pembelian">Pengajuan pembelian</a></li><li class="nav-item"><a class="nav-link" href="#katalog">Katalog</a></li><?php endif ?>
         <?php if($role==='manager'): ?><li class="nav-item"><a class="nav-link" href="#penambahan">Penambahan proyek</a></li><li class="nav-item"><a class="nav-link" href="#pengembalian-peralatan">Kondisi peralatan</a></li><li class="nav-item"><a class="nav-link" href="#permintaan">Permintaan</a></li><li class="nav-item"><a class="nav-link" href="#permintaan-pembelian">Permintaan pembelian <span class="badge rounded-pill text-bg-warning ms-1"><?=$pendingPurchasingRequests?></span></a></li><li class="nav-item"><a class="nav-link" href="#pengiriman">Pengiriman</a></li><?php endif ?>
         <li class="nav-item"><a class="nav-link" href="#mutasi">Riwayat &amp; laporan</a></li>
+        <li class="nav-item"><a class="nav-link" href="aktivitas.php">Aktivitas</a></li>
       </ul>
-      @include('warehouse.partials.account-panel', ['accountLocation' => $warehouseName, 'accountRole' => $roleLabel, 'accountNotificationCount' => $notificationInbox['count']])
+      @include('warehouse.partials.account-panel', ['accountLocation' => $warehouseName, 'accountRole' => $roleLabel, 'accountNotificationCount' => $notificationInbox['count'], 'accountNotifications' => $notificationInbox['items']])
     </div>
   </div>
 </nav>
 <main class="container-fluid px-3 px-lg-4 py-4">
 @include('warehouse.notifications')
   <?php if($flashMessage): ?><div class="alert alert-<?=e($flashMessage[1]==='error'?'danger':$flashMessage[1])?> alert-dismissible fade show" role="alert"><?=e($flashMessage[0])?><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div><?php endif ?>
-  <section class="section-anchor mb-4" id="ringkasan">
-    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3"><div><span class="section-kicker">Ruang kerja · Pergudangan</span><h1 class="h2 fw-bold text-primary-emphasis mt-1 mb-0">Ringkasan <?=e($warehouseName)?></h1></div><span class="text-secondary"><?=e(date('d M Y'))?></span></div>
+@if($errors->any())<div class="alert alert-danger" role="alert"><p class="fw-semibold mb-1">Periksa kembali data yang diisi:</p><ul class="mb-0">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+  <section class="section-anchor dashboard-summary mb-4" id="ringkasan">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3"><div><span class="section-kicker">Ruang kerja · Pergudangan</span><h1 class="h2 fw-bold text-primary-emphasis mt-1 mb-0">Ringkasan <?=e($warehouseName)?></h1><p class="dashboard-section-intro mb-0">Pantau stok dan aktivitas hari ini.</p></div><time class="text-secondary" datetime="<?=e(date('Y-m-d'))?>"><span class="dashboard-date-weekday"><?=e(['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'][(int) date('N') - 1])?></span><span><?=e(date('d M Y'))?></span></time></div>
     <div class="row row-cols-2 row-cols-xl-4 g-3">
       <div class="col"><article class="app-card card stat-card h-100 shadow-sm"><div class="card-body"><span class="small text-secondary">Jenis barang aktif</span><div class="stat-value mt-2"><?=number_format((int)$inventory['jenis'])?></div><small class="text-secondary">item terdaftar</small></div></article></div>
       <div class="col"><article class="app-card card stat-card stat-cyan h-100 shadow-sm"><div class="card-body"><span class="small text-secondary">Stok tersedia</span><div class="stat-value mt-2"><?=number_format((int)$inventory['unit'])?></div><small class="text-secondary">unit di lokasi yang terlihat</small></div></article></div>
       <div class="col"><article class="app-card card stat-card stat-yellow h-100 shadow-sm"><div class="card-body"><span class="small text-secondary">Permintaan menunggu</span><div class="stat-value mt-2"><?=$pending?></div><small class="text-secondary">belum diproses</small></div></article></div>
       <div class="col"><article class="app-card card stat-card stat-red h-100 shadow-sm"><div class="card-body"><span class="small text-secondary">Stok minimum</span><div class="stat-value mt-2"><?=number_format((int)$inventory['rendah'])?></div><small class="text-secondary">item per gudang</small></div></article></div>
     </div>
-    <?php if((int)$inventory['rendah']>0): ?><div class="alert alert-warning mt-3 mb-0" role="alert"><?=number_format((int)$inventory['rendah'])?> stok barang berada pada atau di bawah batas minimum.</div><?php endif ?>
+    <?php if((int)$inventory['rendah']>0): ?><div class="dashboard-stock-alert alert alert-warning mt-3 mb-0 d-flex flex-wrap align-items-center gap-3" role="alert"><span class="dashboard-alert-icon" aria-hidden="true">!</span><div class="dashboard-alert-copy"><strong><?=number_format((int)$inventory['rendah'])?> barang perlu perhatian</strong><span>Ada stok yang sudah mencapai batas minimum.</span><a href="#stok">Lihat barang prioritas <span aria-hidden="true">→</span></a></div></div><?php endif ?>
+  </section>
+
+  <?php if(in_array($role,['manager','admin_pusat'],true)): ?>@include('warehouse.partials.location-stock-summary')<?php endif ?>
+
+  <section class="dashboard-command-center app-card card shadow-sm mb-4" aria-labelledby="aksi-cepat-title">
+    <div class="card-body p-3 p-lg-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+        <div><span class="section-kicker">Meja kerja petugas</span><h2 class="h4 fw-bold text-primary-emphasis mt-1 mb-0" id="aksi-cepat-title">Aksi cepat</h2><p class="dashboard-section-intro mb-0">Buka pekerjaan yang paling sering digunakan dari satu tempat.</p></div>
+        <span class="dashboard-role-context"><span class="visually-hidden">Role aktif: </span><?=e($roleLabel)?></span>
+      </div>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-xl-4 g-2">
+        <div class="col"><a class="dashboard-quick-action" href="#stok"><span class="dashboard-quick-action-icon" aria-hidden="true">▦</span><span><strong>Lihat stok gudang</strong><small>Periksa jumlah dan status minimum</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div>
+        <?php if($role==='admin_pusat'): ?><div class="col"><a class="dashboard-quick-action" href="#penerimaan-pusat"><span class="dashboard-quick-action-icon" aria-hidden="true">＋</span><span><strong>Catat barang masuk</strong><small>Terima barang dari supplier</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><div class="col"><a class="dashboard-quick-action" href="#stock-opname"><span class="dashboard-quick-action-icon" aria-hidden="true">✓</span><span><strong>Stock opname</strong><small>Sesuaikan hasil hitung fisik</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><div class="col"><a class="dashboard-quick-action" href="#katalog"><span class="dashboard-quick-action-icon" aria-hidden="true">▤</span><span><strong>Kelola katalog</strong><small>Tambah atau ubah barang</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><?php endif ?>
+        <?php if($role==='admin_gudang'): ?><div class="col"><a class="dashboard-quick-action" href="#penambahan"><span class="dashboard-quick-action-icon" aria-hidden="true">＋</span><span><strong>Tambah barang proyek</strong><small>Catat penambahan stok</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><div class="col"><a class="dashboard-quick-action" href="#stock-opname"><span class="dashboard-quick-action-icon" aria-hidden="true">✓</span><span><strong>Stock opname</strong><small>Sesuaikan hasil hitung fisik</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><div class="col"><a class="dashboard-quick-action" href="#permintaan"><span class="dashboard-quick-action-icon" aria-hidden="true">↗</span><span><strong>Ajukan permintaan</strong><small>Kirim kebutuhan ke pusat</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><?php endif ?>
+        <?php if($role==='manager'): ?><div class="col"><a class="dashboard-quick-action" href="#laporan"><span class="dashboard-quick-action-icon" aria-hidden="true">▤</span><span><strong>Unduh laporan</strong><small>PDF atau CSV sesuai periode</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><div class="col"><a class="dashboard-quick-action" href="#permintaan"><span class="dashboard-quick-action-icon" aria-hidden="true">!</span><span><strong>Tinjau permintaan</strong><small>Periksa kebutuhan yang masuk</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><div class="col"><a class="dashboard-quick-action" href="#mutasi"><span class="dashboard-quick-action-icon" aria-hidden="true">↔</span><span><strong>Riwayat mutasi</strong><small>Pantau pergerakan persediaan</small></span><span class="dashboard-quick-action-arrow" aria-hidden="true">→</span></a></div><?php endif ?>
+      </div>
+    </div>
   </section>
 
   @include('warehouse.report-selector')
-  <section class="section-anchor app-card card shadow-sm mb-4" id="analisis">
+  <section class="section-anchor dashboard-panel app-card card shadow-sm mb-4" id="analisis">
     <div class="card-body p-3 p-lg-4">
       <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
         <div><span class="section-kicker">Analisis periode</span><h2 class="h4 fw-bold text-primary-emphasis mt-1">Pergerakan stok · <?=e($warehouseName)?></h2><p class="text-secondary mb-0">Pengiriman keluar dan penerimaan proyek ditampilkan sebagai peristiwa terpisah; barang dalam perjalanan tidak masuk stok gudang.</p></div>
@@ -64,15 +83,32 @@
     </div>
   </section>
 
-  <section class="section-anchor app-card card shadow-sm mb-4" id="stok">
-    <div class="card-body p-3 p-lg-4"><div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3"><div><span class="section-kicker">Stok tersedia</span><h2 class="h4 fw-bold text-primary-emphasis mt-1 mb-0">Stok per gudang</h2></div><span class="text-secondary"><?=count($stockRows)?> baris stok</span></div>
+  <section class="section-anchor dashboard-panel stock-overview app-card card shadow-sm mb-4" id="stok">
+    <div class="card-body p-3 p-lg-4"><div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3"><div><span class="section-kicker">Stok tersedia</span><h2 class="h4 fw-bold text-primary-emphasis mt-1 mb-0">Stok per gudang</h2><p class="dashboard-section-intro mb-0">Gunakan pencarian untuk menemukan barang tanpa mengubah data stok.</p></div><span class="stock-row-count" id="stockTableCount" aria-live="polite"><?=count($stockRows)?> baris stok</span></div>
       <?php if($role==='manager'): ?><form method="get" action="dashboard.php#stok" class="row g-2 align-items-end mb-3" data-auto-submit><div class="col-sm-8 col-lg-5"><label class="form-label small fw-semibold" for="gudang_id">Pilih gudang</label><select class="form-select" id="gudang_id" name="gudang_id" required><option value="">Pilih gudang</option><?php foreach($managerWarehouses as $managerWarehouse): ?><option value="<?=$managerWarehouse['id']?>" <?=$selectedManagerWarehouseId===(int)$managerWarehouse['id']?'selected':''?>><?=e($managerWarehouse['nama'])?></option><?php endforeach ?></select></div></form><?php endif ?>
-      <div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><?php if($role==='manager'): ?><th>Gudang</th><?php endif ?><th>Kode</th><th>Barang</th><th>Jenis</th><th>Stok tersedia</th><th>Minimum</th></tr></thead><tbody>
-      <?php foreach($stockRows as $stock): ?><tr><?php if($role==='manager'): ?><td><?=e($stock['gudang'])?></td><?php endif ?><td><?=e($stock['kode'])?></td><td class="fw-semibold"><?=e($stock['nama'])?></td><td><?=e($categoryLabels[$stock['kategori_barang']]??'—')?></td><td><?=number_format((int)$stock['stok'])?> <?=e($stock['satuan'])?></td><td><?=number_format((int)$stock['stok_minimum'])?></td></tr><?php endforeach ?>
-      <?php if(!$stockRows): ?><tr><td colspan="<?= $role==='manager'?6:5 ?>" class="text-center text-secondary py-4"><?=$role==='manager'&&$selectedManagerWarehouseId===0?'Pilih gudang untuk melihat stok.':'Belum ada stok barang.'?></td></tr><?php endif ?>
+      <div class="dashboard-stock-search mb-3"><label class="form-label small fw-semibold mb-1" for="stockSearch">Cari stok</label><div class="input-group"><span class="input-group-text" aria-hidden="true">⌕</span><input class="form-control" id="stockSearch" type="search" placeholder="Cari kode, nama, jenis, atau gudang" autocomplete="off" data-stock-search aria-controls="stockTable"><button class="btn btn-outline-secondary" type="button" data-stock-search-clear aria-label="Bersihkan pencarian stok">Bersihkan</button></div><small class="form-text" id="stockSearchHint">Pencarian hanya menyaring baris yang sedang tampil.</small></div>
+      <div class="table-responsive"><table class="table table-hover align-middle mb-0 dashboard-stock-table" id="stockTable"><caption class="visually-hidden">Daftar stok barang per gudang beserta batas minimum dan statusnya.</caption><thead><tr><?php if($role==='manager'): ?><th scope="col">Gudang</th><?php endif ?><th scope="col">Kode</th><th scope="col">Barang</th><th scope="col">Jenis</th><th scope="col">Stok tersedia</th><th scope="col">Minimum</th><th scope="col">Status</th></tr></thead><tbody>
+      <?php foreach($stockRows as $stock): $stockLow=(int)$stock['stok']<=(int)$stock['stok_minimum']; ?><tr class="<?=$stockLow?'table-warning':''?>" data-stock-row><?php if($role==='manager'): ?><td><?=e($stock['gudang'])?></td><?php endif ?><td><?=e($stock['kode'])?></td><td class="fw-semibold"><?=e($stock['nama'])?></td><td><?=e($categoryLabels[$stock['kategori_barang']]??'—')?></td><td><?=number_format((int)$stock['stok'])?> <?=e($stock['satuan'])?></td><td><?=number_format((int)$stock['stok_minimum'])?></td><td><span class="badge rounded-pill <?=$stockLow?'text-bg-warning':'text-bg-success'?>"><?=$stockLow?'Perlu perhatian':'Aman'?></span></td></tr><?php endforeach ?>
+      <?php if($stockRows): ?><tr class="d-none" data-stock-filter-empty><td colspan="<?= $role==='manager'?7:6 ?>" class="text-center text-secondary py-4">Tidak ada stok yang cocok dengan pencarian.</td></tr><?php endif ?>
+      <?php if(!$stockRows): ?><tr><td colspan="<?= $role==='manager'?7:6 ?>" class="text-center text-secondary py-4"><?=$role==='manager'&&$selectedManagerWarehouseId===0?'Pilih gudang untuk melihat stok.':'Belum ada stok barang.'?></td></tr><?php endif ?>
       </tbody></table></div>
     </div>
   </section>
+  <?php if(in_array($role,['admin_pusat','admin_gudang'],true)): ?>
+  <section class="section-anchor app-card card shadow-sm mb-4" id="stock-opname">
+    <div class="card-body p-3 p-lg-4">
+      <span class="section-kicker">Kontrol persediaan</span><h2 class="h4 fw-bold text-primary-emphasis mt-1">Stock opname dan penyesuaian</h2>
+      <p class="text-secondary">Masukkan hasil hitung fisik. Sistem menghitung selisih dari stok saat ini dan menyimpan alasannya ke riwayat aktivitas.</p>
+      <form method="post" action="stocktake.php" class="row g-3 align-items-end">
+        <input type="hidden" name="csrf" value="<?=e(csrf())?>">
+        <div class="col-md-5"><label class="form-label" for="stocktake_barang">Barang</label><select class="form-select" id="stocktake_barang" name="barang_id" required><option value="">Pilih barang</option><?php foreach($stockRows as $stock): ?><option value="<?=e((string)$stock['barang_id'])?>" <?=((string)$stock['barang_id']===(string)old('barang_id'))?'selected':''?>><?=e($stock['kode'].' · '.$stock['nama'].' (stok '.$stock['stok'].' '.$stock['satuan'].')')?></option><?php endforeach ?></select></div>
+        <div class="col-md-3"><label class="form-label" for="stocktake_jumlah">Jumlah fisik</label><input class="form-control" id="stocktake_jumlah" type="number" name="stok_fisik" min="0" max="4294967295" step="1" inputmode="numeric" value="{{ old('stok_fisik') }}" required></div>
+        <div class="col-md-4"><label class="form-label" for="stocktake_alasan">Alasan / catatan hitung</label><input class="form-control" id="stocktake_alasan" name="alasan" maxlength="1000" value="{{ old('alasan') }}" required></div>
+        <div class="col-12"><button class="btn btn-primary" type="submit">Simpan hasil stock opname</button></div>
+      </form>
+    </div>
+  </section>
+  <?php endif ?>
 
   <?php if($role==='admin_pusat'): ?>
   <section class="section-anchor app-card card shadow-sm mb-4" id="penerimaan-pusat"><div class="card-body p-3 p-lg-4"><span class="section-kicker">Gudang Pusat</span><h2 class="h4 fw-bold text-primary-emphasis mt-1">Catat barang masuk dari supplier</h2><p class="text-secondary">Penerimaan hanya menambah stok Gudang Pusat.</p>
