@@ -77,6 +77,9 @@ branch pekerjaan -> local -> develop -> staging -> main/master
 Tahap `local` berarti seluruh pemeriksaan dijalankan sebelum push atau membuat pull request.
 Branch terlindungi tidak boleh diubah langsung. Pull request harus mengikuti pasangan berikut:
 
+Branch pekerjaan tetap bebas untuk commit dan push selama implementasi. Pull request baru wajib
+dibuat ketika perubahan siap dipromosikan dari branch pekerjaan ke `local`.
+
 | Branch sumber | Branch tujuan | Syarat utama |
 | --- | --- | --- |
 | branch pekerjaan | `local` | pemeriksaan lokal dan CI lulus |

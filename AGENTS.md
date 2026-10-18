@@ -20,6 +20,8 @@
   `local`, ke `staging` dari `develop`, dan ke `main` atau `master` dari `staging`.
 - Setiap perubahan yang bermakna harus memiliki commit tersendiri. Gunakan bahasa Indonesia
   pada subjek commit dengan format `<jenis>: <ringkasan bahasa Indonesia>`.
+- Branch pekerjaan tidak dikunci: developer boleh membuat commit dan push berkali-kali pada
+  branch tersebut. Pull request pertama dibuat saat menggabungkan branch pekerjaan ke `local`.
 - Jangan menggabungkan pull request jika pemeriksaan branch, commit, keamanan, test, dan lint
   belum lulus.
 

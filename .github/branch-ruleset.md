@@ -14,6 +14,10 @@ atau tidak memakai awalan pekerjaan yang disetujui.
 Buat atau import `.github/rulesets/production-branch-flow.json`. Ruleset ini melindungi branch
 `local`, `develop`, `staging`, `main`, dan `master`.
 
+Ruleset ini tidak menargetkan branch pekerjaan. Branch `feature/*`, `fix/*`, `bugfix/*`,
+`hotfix/*`, `refactor/*`, `chore/*`, `docs/*`, dan `test/*` tetap dapat menerima commit dan push.
+PR pertama dibuat hanya saat branch pekerjaan siap digabung ke `local`.
+
 - Target: `develop`, `staging`, `main`, dan `master`.
 - Bypass list: kosong atau hanya administrator rilis yang disetujui.
 - Wajib pull request sebelum merge.
