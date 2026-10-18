@@ -1,5 +1,5 @@
 {
-  "name": "alur-branch-produksi",
+  "name": "production-branch-flow",
   "target": "branch",
   "enforcement": "active",
   "bypass_actors": [],
@@ -15,22 +15,13 @@
     }
   },
   "rules": [
-    {
-      "type": "deletion"
-    },
-    {
-      "type": "non_fast_forward"
-    },
-    {
-      "type": "required_linear_history"
-    },
+    { "type": "deletion" },
+    { "type": "non_fast_forward" },
+    { "type": "required_linear_history" },
     {
       "type": "pull_request",
       "parameters": {
-        "allowed_merge_methods": [
-          "squash",
-          "rebase"
-        ],
+        "allowed_merge_methods": ["squash", "rebase"],
         "dismiss_stale_reviews_on_push": true,
         "require_code_owner_review": false,
         "require_last_push_approval": true,
@@ -43,18 +34,10 @@
       "parameters": {
         "do_not_enforce_on_create": false,
         "required_status_checks": [
-          {
-            "context": "Validasi alur branch dan commit"
-          },
-          {
-            "context": "Test dan Pint Laravel"
-          },
-          {
-            "context": "Build frontend"
-          },
-          {
-            "context": "Playwright Tests / test"
-          }
+          { "context": "Validasi alur branch dan commit" },
+          { "context": "Test dan Pint Laravel" },
+          { "context": "Build frontend" },
+          { "context": "Playwright Tests / test" }
         ],
         "strict_required_status_checks_policy": true
       }
@@ -62,7 +45,7 @@
     {
       "type": "commit_message_pattern",
       "parameters": {
-        "name": "Format commit bahasa Indonesia",
+        "name": "Commit message format",
         "negate": false,
         "operator": "regex",
         "pattern": "^(feat|fix|bugfix|hotfix|refactor|chore|docs|test|perf)(\\([a-z0-9._-]+\\))?: [^[:space:]].*\\n?$"

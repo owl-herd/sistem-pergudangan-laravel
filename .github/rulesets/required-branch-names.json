@@ -1,13 +1,11 @@
 {
-  "name": "nama-branch-wajib",
+  "name": "required-branch-names",
   "target": "branch",
   "enforcement": "active",
   "bypass_actors": [],
   "conditions": {
     "ref_name": {
-      "include": [
-        "~ALL"
-      ],
+      "include": ["~ALL"],
       "exclude": []
     }
   },
@@ -15,7 +13,7 @@
     {
       "type": "branch_name_pattern",
       "parameters": {
-        "name": "Branch harus mengikuti workflow",
+        "name": "Allowed branch names",
         "negate": false,
         "operator": "regex",
         "pattern": "^(develop|staging|main|master|(feature|fix|bugfix|hotfix|refactor|chore|docs|test)/[a-z0-9][a-z0-9._-]*)$"

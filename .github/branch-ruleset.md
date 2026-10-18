@@ -3,13 +3,16 @@
 Ruleset berikut harus dibuat pada pengaturan repository GitHub karena aturan ini adalah
 konfigurasi server, bukan file yang otomatis aktif dari repository.
 
-## Ruleset `nama-branch-wajib`
+## Ruleset `required-branch-names`
 
-Buat atau import `.github/rulesets/nama-branch-wajib.json` terlebih dahulu. Ruleset ini berlaku
+Buat atau import `.github/rulesets/required-branch-names.json` terlebih dahulu. Ruleset ini berlaku
 untuk semua branch dan menolak branch yang tidak bernama `develop`, `staging`, `main`, `master`,
 atau tidak memakai awalan pekerjaan yang disetujui.
 
-## Ruleset `alur-branch-produksi`
+## Ruleset `production-branch-flow`
+
+Buat atau import `.github/rulesets/production-branch-flow.json`. Ruleset ini melindungi branch
+`develop`, `staging`, `main`, dan `master`.
 
 - Target: `develop`, `staging`, `main`, dan `master`.
 - Bypass list: kosong atau hanya administrator rilis yang disetujui.
