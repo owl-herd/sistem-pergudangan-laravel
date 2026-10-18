@@ -263,6 +263,41 @@ CREATE TABLE IF NOT EXISTS transaksi_gudang (
   INDEX idx_transaksi_gudang_pengiriman (pengiriman_id)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS stock_adjustments (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  gudang_id BIGINT UNSIGNED NOT NULL,
+  barang_id BIGINT UNSIGNED NOT NULL,
+  user_id BIGINT UNSIGNED NULL,
+  nama_petugas VARCHAR(150) NOT NULL,
+  stok_sebelum INT UNSIGNED NOT NULL,
+  stok_fisik INT UNSIGNED NOT NULL,
+  selisih BIGINT NOT NULL,
+  alasan VARCHAR(1000) NOT NULL,
+  dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_stock_adjustments_gudang FOREIGN KEY (gudang_id) REFERENCES gudang(id),
+  CONSTRAINT fk_stock_adjustments_barang FOREIGN KEY (barang_id) REFERENCES barang(id),
+  CONSTRAINT fk_stock_adjustments_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  INDEX idx_stock_adjustments_gudang_waktu (gudang_id,dibuat_pada),
+  INDEX idx_stock_adjustments_barang_waktu (barang_id,dibuat_pada)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS warehouse_activity_logs (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  actor_id BIGINT UNSIGNED NULL,
+  actor_name VARCHAR(120) NOT NULL,
+  gudang_id BIGINT UNSIGNED NULL,
+  event_key VARCHAR(60) NOT NULL,
+  subject_type VARCHAR(60) NOT NULL,
+  subject_id BIGINT UNSIGNED NULL,
+  subject_label VARCHAR(255) NOT NULL,
+  details TEXT NOT NULL,
+  dibuat_pada TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_warehouse_activity_actor FOREIGN KEY (actor_id) REFERENCES users(id) ON DELETE SET NULL,
+  CONSTRAINT fk_warehouse_activity_gudang FOREIGN KEY (gudang_id) REFERENCES gudang(id) ON DELETE SET NULL,
+  INDEX idx_warehouse_activity_gudang_waktu (gudang_id,dibuat_pada),
+  INDEX idx_warehouse_activity_event_waktu (event_key,dibuat_pada)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS penerimaan_pembelian (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   permintaan_pembelian_id BIGINT UNSIGNED NOT NULL,

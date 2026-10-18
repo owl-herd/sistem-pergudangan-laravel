@@ -187,6 +187,8 @@ Path penyimpanan tidak boleh dipublikasikan secara langsung. Request yang tidak 
 - `database.sql` menjadi acuan skema lama.
 - Migrasi scaffold untuk tabel lama tidak digunakan untuk menggantikan skema yang telah ada.
 - Migrasi baru hanya boleh menambah perubahan yang memang berada dalam cakupan dan telah dipahami dampaknya.
+- `stock_adjustments` menyimpan stok sebelum stock opname, hasil fisik, selisih bertanda, alasan, gudang, petugas, dan waktu. Tabel tambahan ini tidak mengubah enum transaksi legacy.
+- `warehouse_activity_logs` menyimpan perubahan master katalog beserta snapshot pelaku, gudang, objek, rincian, dan waktu. Riwayat akun yang sudah ada tetap disimpan pada `riwayat_pengelolaan_akun`.
 - Jangan menjalankan `migrate:fresh`, `db:wipe`, seeder contoh, atau impor ulang `database.sql` ke database yang telah berisi data.
 - Database sumber bersifat read-only untuk kebutuhan acuan; jangan menjalankan operasi destruktif terhadapnya.
 - Konfigurasi `.env` tidak boleh ditampilkan atau disalin ke dokumentasi.
@@ -199,6 +201,17 @@ Path penyimpanan tidak boleh dipublikasikan secara langsung. Request yang tidak 
 4. Penyimpanan transaksi dan perubahan saldo harus konsisten.
 5. Kegagalan di tengah proses tidak boleh meninggalkan saldo parsial.
 6. Riwayat transaksi harus dapat ditelusuri sesuai data yang tersedia dari sistem sumber.
+7. Stock opname mengunci baris barang dan saldo gudang, lalu menyimpan catatan stock adjustment, perubahan saldo, serta mutasi masuk/keluar dalam satu transaksi.
+8. Admin Pusat hanya dapat menyesuaikan Gudang Pusat; Admin Gudang hanya dapat menyesuaikan gudang proyek yang ditautkan; Manager hanya dapat melihat.
+9. Hasil hitung yang sama dengan saldo tetap dicatat sebagai stock opname, tetapi tidak membuat transaksi masuk/keluar.
+
+### Laporan dan Audit Aktivitas
+
+- PDF dan CSV menggunakan role Manajer serta filter rentang tanggal dan jenis laporan yang sama.
+- CSV menggunakan format UTF-8 dengan BOM dan menetralkan teks berawalan formula spreadsheet.
+- Halaman aktivitas menggabungkan transaksi gudang, stock adjustment, perubahan katalog, dan catatan pengelolaan akun yang sudah ada.
+- Aktivitas dibatasi ke gudang aktif untuk Manager, gudang pusat untuk Admin Pusat, gudang akun untuk Admin Gudang, dan seluruh data untuk Super Admin.
+- Halaman aktivitas membatasi hasil menjadi 200 catatan terbaru untuk setiap filter.
 
 ## 8. Keamanan
 

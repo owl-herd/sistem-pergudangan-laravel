@@ -42,6 +42,14 @@ Legenda status: `Todo` · `In Progress` · `Blocked` · `Done`
 - [ ] `Todo` Verifikasi ringkasan kondisi gudang pada dashboard.
 - [ ] `Todo` Verifikasi link dan navigasi menuju fungsi operasional utama.
 - [ ] `Todo` Pastikan dashboard menampilkan data sesuai role pengguna.
+- [x] `Done` Tandai baris barang yang stoknya berada pada atau di bawah batas minimum.
+
+### Stock Opname, Laporan, dan Audit
+
+- [x] `Done` Tambahkan stock opname dengan jumlah fisik, alasan, selisih, dan mutasi stok atomik sesuai role gudang.
+- [x] `Done` Tambahkan ekspor CSV untuk jenis laporan dan rentang tanggal yang tersedia pada laporan PDF.
+- [x] `Done` Satukan riwayat mutasi, stock opname, perubahan katalog, dan audit akun sesuai cakupan role.
+- [x] `Done` Jalankan feature test dan seluruh test Laravel pada database pengujian `_test`.
 
 ### Master Data Barang
 
@@ -83,18 +91,18 @@ Legenda status: `Todo` · `In Progress` · `Blocked` · `Done`
 - [ ] `Todo` Pastikan Blade tidak memuat aturan bisnis atau query langsung.
 - [ ] `Todo` Pastikan helper dan service mengikuti pola proyek yang sudah ada.
 - [ ] `Todo` Hindari penambahan dependensi tanpa kebutuhan yang jelas.
-- [ ] `Todo` Jalankan Laravel Pint hanya pada file PHP yang diubah.
+- [x] `Done` Jalankan Laravel Pint hanya pada file PHP yang diubah.
 - [ ] `Todo` Tinjau error handling agar tidak membocorkan path internal atau data sensitif.
 
 ## Prioritas P2 — Pengujian dan Verifikasi
 
-- [ ] `Todo` Jalankan test Laravel menggunakan:
+- [x] `Done` Jalankan test Laravel menggunakan:
 
   ```text
   C:\xampp\php\php.exe artisan test
   ```
 
-- [ ] `Todo` Pastikan test hanya menulis ke database pengujian `_test`.
+- [x] `Done` Pastikan test hanya menulis ke database pengujian `_test`.
 - [ ] `Todo` Tambahkan test autentikasi berhasil dan gagal.
 - [ ] `Todo` Tambahkan test otorisasi per role.
 - [ ] `Todo` Tambahkan test CSRF untuk aksi mutasi.

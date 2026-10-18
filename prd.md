@@ -68,6 +68,7 @@ Melihat kondisi persediaan, riwayat transaksi, dan informasi operasional untuk k
 
 - Ringkasan kondisi gudang.
 - Informasi jumlah atau status stok yang relevan.
+- Menandai barang yang stoknya berada pada atau di bawah batas minimum.
 - Akses cepat ke fungsi operasional utama.
 - Tampilan responsif berbasis Bootstrap.
 
@@ -84,8 +85,10 @@ Melihat kondisi persediaan, riwayat transaksi, dan informasi operasional untuk k
 - Mencatat barang masuk.
 - Mencatat barang keluar.
 - Menampilkan saldo stok.
+- Mendukung stock opname dengan pencatatan stok sistem, hasil hitung fisik, selisih, alasan, petugas, dan waktu.
+- Membatasi penyesuaian stok kepada Admin Pusat untuk Gudang Pusat dan Admin Gudang untuk gudang proyeknya sendiri.
 - Mencegah transaksi yang melanggar aturan stok sumber, termasuk pengeluaran melebihi stok tersedia bila aturan sumber melarangnya.
-- Menyediakan riwayat perubahan stok.
+- Menyediakan riwayat perubahan stok dan stock opname.
 - Menjaga konsistensi antara transaksi dan saldo persediaan.
 
 ### 6.5 Pencarian dan Penyaringan
@@ -104,6 +107,13 @@ Melihat kondisi persediaan, riwayat transaksi, dan informasi operasional untuk k
 
 - Mempertahankan nama tabel, ID, role, endpoint `.php`, dan perilaku bisnis aplikasi sumber.
 - Memindahkan alur prosedural sumber ke layanan `WarehousePages` dan `WarehouseActions` tanpa mengubah hasil bisnis.
+
+### 6.8 Laporan dan Audit Aktivitas
+
+- Manajer dapat melihat dan mengunduh laporan PDF atau CSV dengan jenis laporan dan periode yang dipilih.
+- CSV menggunakan kolom konsisten untuk jenis laporan yang dipilih; nilai teks yang dapat ditafsirkan sebagai formula spreadsheet dinetralkan.
+- Riwayat aktivitas menyatukan mutasi stok, hasil stock opname, perubahan katalog, dan—khusus Super Admin—perubahan akun.
+- Aktivitas dibatasi menurut gudang dan role; tampilan memuat paling banyak 200 aktivitas terbaru untuk rentang tanggal yang dipilih.
 
 ## 7. Alur Utama Pengguna
 
@@ -131,6 +141,14 @@ Melihat kondisi persediaan, riwayat transaksi, dan informasi operasional untuk k
 3. Jika diizinkan, sistem menyajikan berkas dari penyimpanan privat.
 4. Jika tidak diizinkan, sistem mengembalikan respons penolakan tanpa membocorkan berkas.
 
+### 7.4 Stock Opname
+
+1. Admin membuka fungsi stock opname untuk gudang yang menjadi kewenangannya.
+2. Admin memilih barang, memasukkan jumlah fisik, dan menjelaskan alasan penghitungan.
+3. Sistem mengunci saldo terkait dan menghitung selisih terhadap stok sistem.
+4. Sistem menyimpan hasil hitung, selisih, perubahan saldo, dan mutasi bila ada dalam satu transaksi.
+5. Sistem menampilkan hasil dan menyediakan catatannya pada riwayat aktivitas.
+
 ## 8. Persyaratan Fungsional
 
 | ID | Persyaratan | Prioritas |
@@ -145,6 +163,10 @@ Melihat kondisi persediaan, riwayat transaksi, dan informasi operasional untuk k
 | FR-08 | Sistem menyediakan pencarian dan penyaringan | Should |
 | FR-09 | Sistem melindungi foto dan berkas privat | Must |
 | FR-10 | Sistem mempertahankan endpoint dan perilaku legacy yang diperlukan | Must |
+| FR-11 | Sistem menandai stok pada atau di bawah batas minimum | Should |
+| FR-12 | Sistem mencatat stock opname dan menerapkan selisih secara atomik | Should |
+| FR-13 | Sistem menyediakan ekspor laporan CSV selain PDF | Should |
+| FR-14 | Sistem menyediakan riwayat aktivitas stok, katalog, dan pengelolaan akun sesuai izin | Should |
 
 ## 9. Persyaratan Nonfungsional
 
@@ -186,7 +208,11 @@ Melihat kondisi persediaan, riwayat transaksi, dan informasi operasional untuk k
 - Data barang dapat ditampilkan dan dikelola sesuai kewenangan.
 - Transaksi stok valid tersimpan dan tercermin pada saldo sesuai aturan sumber.
 - Transaksi stok invalid ditolak dengan pesan yang sesuai.
+- Stock opname menyimpan jumlah sebelum, hasil fisik, selisih, alasan, petugas, serta mutasi saldo dalam satu transaksi database.
+- Pengguna hanya dapat menyesuaikan stok gudang sesuai role dan penugasannya.
 - Riwayat transaksi dapat ditelusuri.
+- Laporan CSV mengikuti filter dan otorisasi laporan PDF serta aman dibuka sebagai spreadsheet.
+- Riwayat aktivitas hanya menampilkan data gudang yang dapat diakses role peminta.
 - Foto atau berkas privat hanya dapat diakses oleh pengguna yang berwenang.
 - Endpoint legacy yang termasuk cakupan tetap berjalan.
 - Test Laravel lulus menggunakan database pengujian yang ditetapkan.
@@ -232,5 +258,5 @@ Melihat kondisi persediaan, riwayat transaksi, dan informasi operasional untuk k
 
 1. Daftar role final dan matriks izin tiap role perlu dikonfirmasi.
 2. Daftar field master barang perlu diselaraskan dengan skema produksi yang berlaku.
-3. Format laporan dan ekspor data, bila diperlukan, perlu ditentukan.
-4. Kebutuhan barcode, notifikasi, audit log, dan integrasi pihak ketiga perlu diprioritaskan pada fase berikutnya.
+3. Kebijakan retensi dan paginasi audit log perlu ditentukan bila volume aktivitas meningkat.
+4. Kebutuhan barcode dan integrasi pihak ketiga perlu diprioritaskan pada fase berikutnya.
