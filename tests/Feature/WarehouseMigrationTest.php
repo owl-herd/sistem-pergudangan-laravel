@@ -83,6 +83,19 @@ class WarehouseMigrationTest extends TestCase
         }
     }
 
+    public function test_dashboard_navigation_separates_sidebar_and_account_bar(): void
+    {
+        $this->actingAs($this->actor('manager'))
+            ->get('/dashboard.php')
+            ->assertOk()
+            ->assertSee('Navigasi dashboard')
+            ->assertSee('Bagian dashboard')
+            ->assertSee('dashboard-account-bar')
+            ->assertSee('Trikasa Energi Tama')
+            ->assertSee('dashboard-brand-role')
+            ->assertSee('permintaan-pembelian');
+    }
+
     public function test_location_stock_summary_is_shown_only_to_roles_with_location_overview(): void
     {
         foreach (['manager' => 'dashboard.php', 'purchasing' => 'purchasing.php', 'admin_pusat' => 'dashboard.php', 'super_admin' => 'super_admin.php'] as $role => $page) {

@@ -1670,3 +1670,149 @@ body {
 .dashboard-main-brand {
   display: none;
 }
+
+/* Dashboard memisahkan navigasi samping dari informasi akun di bar atas. */
+.warehouse-dashboard-shell .dashboard-account-bar {
+  position: relative;
+  z-index: 1020;
+  padding-block: .65rem;
+  border-bottom: 1px solid #dbe5ef;
+  background: #fff;
+  box-shadow: 0 .2rem .75rem rgba(18, 58, 104, .08);
+}
+
+.warehouse-dashboard-shell .dashboard-account-bar > .container-fluid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem 1rem;
+}
+
+.warehouse-dashboard-shell .dashboard-account-context {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.warehouse-dashboard-shell .dashboard-account-context strong {
+  overflow-wrap: anywhere;
+  color: var(--brand-blue-dark);
+}
+
+.warehouse-dashboard-shell .dashboard-top-navigation .navbar-brand {
+  max-width: 100%;
+  white-space: normal;
+}
+
+.warehouse-dashboard-shell .dashboard-brand-copy {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.warehouse-dashboard-shell .dashboard-brand-copy small {
+  max-width: 100%;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.warehouse-dashboard-shell .dashboard-brand-role {
+  align-self: flex-start;
+  white-space: normal;
+  text-align: left;
+}
+
+.warehouse-dashboard-shell .dashboard-account-bar .navbar-account.account-panel {
+  display: flex;
+  width: auto;
+  max-width: 100%;
+  flex: 0 1 auto;
+  flex-direction: row;
+  align-items: center;
+  gap: .75rem !important;
+  padding: .5rem .75rem !important;
+  border: 1px solid #ffffff40;
+  border-radius: .75rem;
+  background: #092a4c;
+}
+
+.warehouse-dashboard-shell .dashboard-account-bar .account-panel-identity {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto 42px;
+  align-items: center;
+  gap: .5rem .65rem;
+}
+
+.warehouse-dashboard-shell .dashboard-account-bar .account-panel-actions {
+  flex: 0 0 auto;
+}
+
+.warehouse-dashboard-shell .dashboard-account-bar .account-panel-actions .btn {
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+@media (min-width: 1200px) {
+  .warehouse-dashboard-shell .dashboard-top-navigation .navbar-brand {
+    display: flex;
+  }
+
+  .warehouse-dashboard-shell .dashboard-top-navigation .navbar-brand .dashboard-brand-copy small {
+    display: block;
+  }
+
+  .warehouse-dashboard-shell .dashboard-account-bar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 252px;
+    min-height: 84px;
+  }
+
+  .warehouse-dashboard-shell .dashboard-account-bar > .container-fluid {
+    min-height: 82px;
+    flex-wrap: nowrap;
+  }
+
+  .warehouse-dashboard-shell main {
+    padding-top: 7rem !important;
+  }
+}
+
+@media (max-width: 1199.98px) {
+  .warehouse-dashboard-shell .dashboard-account-bar .navbar-account.account-panel {
+    width: 100%;
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .warehouse-dashboard-shell .dashboard-account-bar > .container-fluid {
+    align-items: stretch;
+  }
+
+  .warehouse-dashboard-shell .dashboard-account-context {
+    padding-inline: .25rem;
+  }
+
+  .warehouse-dashboard-shell .dashboard-account-bar .account-panel-identity {
+    grid-template-columns: 40px minmax(0, 1fr) 42px;
+  }
+
+  .warehouse-dashboard-shell .dashboard-account-bar .account-panel-role {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  .warehouse-dashboard-shell .dashboard-account-bar .account-panel-notification-menu {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+}

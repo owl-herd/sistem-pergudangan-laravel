@@ -10,10 +10,10 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css?v=<?= filemtime(public_path('assets/style.css')) ?>">
 </head>
-<body class="warehouse-dashboard-top">
+<body class="warehouse-dashboard-top warehouse-dashboard-shell">
 <nav class="navbar navbar-expand-xl navbar-dark dashboard-navbar dashboard-top-navigation sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi dashboard">
   <div class="container-fluid px-lg-4">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small><?=e($warehouseName)?> · <?=e($roleLabel)?></small></span></a>
+    <a class="navbar-brand d-flex align-items-center gap-2" href="dashboard.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small><?=e($warehouseName)?></small><span class="badge rounded-pill text-bg-warning dashboard-brand-role"><?=e($roleLabel)?></span></span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardNavigation" aria-controls="dashboardNavigation" aria-expanded="false" aria-label="Buka navigasi dashboard"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="dashboardNavigation">
       <ul class="navbar-nav me-auto ms-lg-4 gap-lg-2 section-nav py-2 py-lg-0" aria-label="Bagian dashboard">
@@ -25,10 +25,15 @@
         <li class="nav-item"><a class="nav-link" href="#mutasi">Riwayat &amp; laporan</a></li>
         <li class="nav-item"><a class="nav-link" href="aktivitas.php">Aktivitas</a></li>
       </ul>
-      @include('warehouse.partials.account-panel', ['accountLocation' => $warehouseName, 'accountRole' => $roleLabel, 'accountNotificationCount' => $notificationInbox['count'], 'accountNotifications' => $notificationInbox['items']])
     </div>
   </div>
 </nav>
+<header class="dashboard-account-bar" aria-label="Akun dan notifikasi">
+  <div class="container-fluid px-3 px-lg-4">
+    <div class="dashboard-account-context"><span class="small text-secondary">Halaman</span><strong>Dashboard</strong></div>
+    @include('warehouse.partials.account-panel', ['accountLocation' => $warehouseName, 'accountRole' => $roleLabel, 'accountNotificationCount' => $notificationInbox['count'], 'accountNotifications' => $notificationInbox['items']])
+  </div>
+</header>
 <main class="container-fluid px-3 px-lg-4 py-4">
 @include('warehouse.notifications')
   <?php if($flashMessage): ?><div class="alert alert-<?=e($flashMessage[1]==='error'?'danger':$flashMessage[1])?> alert-dismissible fade show" role="alert"><?=e($flashMessage[0])?><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div><?php endif ?>

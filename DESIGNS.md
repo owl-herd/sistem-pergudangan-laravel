@@ -55,7 +55,7 @@ Aturan penggunaan:
 - Pertahankan jarak visual bertingkat: halaman, section, card, lalu isi komponen.
 - Kelompokkan informasi terkait dalam `.card` atau `.app-card`.
 - Dashboard boleh menggunakan statistik ringkas di bagian atas, lalu tabel atau aktivitas detail.
-- Hindari menambahkan sidebar atau pola layout baru jika navigasi navbar yang ada sudah cukup.
+- Dashboard memakai sidebar untuk navigasi bagian kerja dan bar atas untuk identitas akun serta notifikasi. Halaman operasional lain dapat mempertahankan navbar sesuai kebutuhan halamannya.
 
 ## 5. Navigasi dan navbar
 
