@@ -10,7 +10,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css?v=<?=filemtime(public_path('assets/style.css'))?>">
 </head>
-<body class="warehouse-dashboard-top">
+<body class="warehouse-dashboard-top warehouse-dashboard-shell">
 <nav class="navbar navbar-expand-xl navbar-dark dashboard-navbar dashboard-top-navigation sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi purchasing">
   <div class="container-fluid px-lg-4">
     <a class="navbar-brand d-flex align-items-center gap-2" href="purchasing.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small>Pusat kendali Â· Purchasing</small></span></a>
@@ -22,10 +22,20 @@
         <li class="nav-item"><a class="nav-link" href="#permintaan">Permintaan pembelian<?php if($pendingCount>0): ?> <span class="badge rounded-pill text-bg-warning ms-1"><?=$pendingCount?></span><?php endif ?></a></li>
         <li class="nav-item"><a class="nav-link" href="#notifikasi">Notifikasi<?php if($unreadNotificationCount>0): ?> <span class="badge rounded-pill text-bg-danger ms-1"><?=$unreadNotificationCount?></span><?php endif ?></a></li>
       </ul>
-      @include('warehouse.partials.account-panel', ['accountLocation' => 'Pembelian', 'accountRole' => 'Purchasing', 'accountNotificationCount' => $unreadNotificationCount, 'accountNotifications' => $unreadNotifications])
     </div>
   </div>
 </nav>
+<header class="dashboard-account-bar" aria-label="Akun dan notifikasi">
+  <div class="container-fluid px-3 px-lg-4">
+    <div class="dashboard-account-context">
+      <span class="dashboard-page-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false"><path d="M3.5 5.5h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.4l1.3-6.3H7" /><circle cx="10" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></svg>
+      </span>
+      <strong>Purchasing</strong>
+    </div>
+    @include('warehouse.partials.account-panel', ['accountLocation' => 'Pembelian', 'accountRole' => 'Purchasing', 'accountNotificationCount' => $unreadNotificationCount, 'accountNotifications' => $unreadNotifications])
+  </div>
+</header>
 <main class="container-fluid px-3 px-lg-4 py-4">
   <?php if($flashMessage): ?><div class="alert alert-<?=e($flashMessage[1]==='error'?'danger':$flashMessage[1])?> alert-dismissible fade show" role="alert"><?=e($flashMessage[0])?><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div><?php endif ?>
   <?php if($unreadNotificationCount>0): ?>
