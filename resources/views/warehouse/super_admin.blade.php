@@ -10,13 +10,13 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css?v=<?= filemtime(public_path('assets/style.css')) ?>">
 </head>
-<body>
-<nav class="navbar navbar-expand-xl navbar-dark dashboard-navbar sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi Super Admin">
+<body class="warehouse-dashboard-top warehouse-dashboard-shell">
+<nav class="navbar navbar-expand-xl navbar-dark dashboard-navbar dashboard-top-navigation sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi Super Admin">
   <div class="container-fluid px-lg-4">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="super_admin.php"><img src="assets/logo.png" alt=""><span class="fw-bold">Trikasa Energi Tama</span></a>
+    <a class="navbar-brand d-flex align-items-center gap-2" href="super_admin.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small>Pusat kendali · Super Admin</small><span class="badge rounded-pill text-bg-warning dashboard-brand-role">Super Admin</span></span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#superAdminNavigation" aria-controls="superAdminNavigation" aria-expanded="false" aria-label="Buka navigasi Super Admin"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="superAdminNavigation">
-      <ul class="navbar-nav me-auto ms-lg-4 gap-lg-2 py-2 py-lg-0">
+      <ul class="navbar-nav me-auto ms-lg-4 gap-lg-2 section-nav py-2 py-lg-0" aria-label="Bagian pengelolaan akun">
         <li class="nav-item"><a class="nav-link active" aria-current="location" href="#buat-akun">Buat akun</a></li>
         <li class="nav-item"><a class="nav-link" href="#akun">Daftar akun</a></li>
         <li class="nav-item"><a class="nav-link" href="#pengelolaan-gudang">Gudang proyek</a></li>
@@ -24,10 +24,20 @@
         <li class="nav-item"><a class="nav-link" href="#riwayat">Riwayat perubahan</a></li>
         <li class="nav-item"><a class="nav-link" href="aktivitas.php">Aktivitas gudang</a></li>
       </ul>
-      @include('warehouse.partials.account-panel', ['accountLocation' => 'Pengelolaan sistem', 'accountRole' => 'Super Admin', 'accountNotificationCount' => $notificationInbox['count'], 'accountNotifications' => $notificationInbox['items']])
     </div>
   </div>
 </nav>
+<header class="dashboard-account-bar" aria-label="Akun dan notifikasi">
+  <div class="container-fluid px-3 px-lg-4">
+    <div class="dashboard-account-context">
+      <span class="dashboard-page-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="8" r="3.2" /><path d="M3.5 19.5v-1.2a5.5 5.5 0 0 1 11 0v1.2zM16 5.2a3.2 3.2 0 0 1 0 6.2M17.2 14a5.2 5.2 0 0 1 3.3 4.8v.7" /></svg>
+      </span>
+      <strong>Super Admin</strong>
+    </div>
+    @include('warehouse.partials.account-panel', ['accountLocation' => 'Pengelolaan sistem', 'accountRole' => 'Super Admin', 'accountNotificationCount' => $notificationInbox['count'], 'accountNotifications' => $notificationInbox['items']])
+  </div>
+</header>
 <main class="container-fluid px-3 px-lg-4 py-4">
 @include('warehouse.notifications')
   <?php if($flashMessage): ?><div class="alert alert-<?=e($flashMessage[1]==='error'?'danger':$flashMessage[1])?> alert-dismissible fade show" role="alert"><?=e($flashMessage[0])?><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button></div><?php endif ?>
