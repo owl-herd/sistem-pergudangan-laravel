@@ -42,19 +42,24 @@ Middleware
        v
 Controllers / Entry Points
        |
-       +--------------------+
-       v                    v
-WarehousePages       WarehouseActions
-       |                    |
-       +---------+----------+
-                 v
-       AccessService dan helper
-                 |
-                 v
-       Models / Query / Database
-                 |
-                 v
-       Private Storage untuk foto dan berkas
+       +-------------------+----------------------+
+       v                   v                      v
+WarehousePages     WarehouseReports     Aksi operasional
+                                               |
+                                      +--------+--------+
+                                      v        v        v
+                                WarehouseActions  WarehousePurchasingActions
+                                WarehouseUserAdministrationActions
+                                      |        |        |
+                                      +--------+--------+
+                                               v
+                                  AccessService dan helper
+                                               |
+                                               v
+                                  PDO / Eloquent / Database
+                                               |
+                                               v
+                                  Private Storage untuk berkas
 ```
 
 Blade dan komponen Bootstrap berada pada sisi presentasi. Controller tidak boleh menjadi tempat utama aturan bisnis; controller meneruskan input tervalidasi ke service dan mengembalikan response atau view.
@@ -109,6 +114,8 @@ Saat merapikan kode, urutan proses dan hasil bisnis dari aplikasi sumber tidak b
 - menerapkan aturan stok dari aplikasi sumber;
 - menjaga konsistensi transaksi database;
 - mengembalikan hasil yang dapat dipahami oleh controller.
+
+`WarehouseReports` memisahkan ekspor laporan PDF/CSV. `WarehousePurchasingActions` menangani pengajuan dan keputusan pembelian, sedangkan `WarehouseUserAdministrationActions` menangani administrasi akun. Pemisahan ini mempertahankan metode prosedural hasil migrasi sambil memberi batas file yang lebih jelas. `WarehouseActions` masih menampung rangkaian aksi administrasi gudang lama; pemecahan berikutnya perlu dilakukan per alur dengan regresi bisnis yang sesuai.
 
 ### 4.6 AccessService
 

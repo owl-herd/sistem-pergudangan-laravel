@@ -204,6 +204,20 @@ db:wipe
 
 Setelah perubahan PHP, jalankan Laravel Pint pada file PHP yang diubah.
 
+### Smoke Test Browser
+
+Jalankan smoke test Playwright hanya terhadap server loopback dengan environment testing dan
+database `_test`. Server dan tes dijalankan pada terminal terpisah:
+
+```powershell
+C:\xampp\php\php.exe artisan serve --host=127.0.0.1 --port=8001 --env=testing
+npm.cmd run test:e2e
+```
+
+`E2E_BASE_URL` hanya boleh menunjuk ke `localhost` atau alamat loopback. Smoke test saat ini
+hanya melakukan GET; jangan gunakan akun, cookie, atau database produksi. Untuk memperluas tes
+ke halaman terautentikasi, siapkan fixture E2E yang terisolasi terlebih dahulu.
+
 ## 9. Tahap 7 — Review Perubahan
 
 Review hasil kerja untuk memastikan:

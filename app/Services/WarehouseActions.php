@@ -360,7 +360,7 @@ class WarehouseActions
                 $remaining -= $totalReceived;
                 $message = 'Penerimaan #'.$receiptId.' berhasil dicatat. '.number_format($goodQuantity).' '.(string) $item['satuan'].' layak masuk stok.';
                 if ($damagedQuantity > 0 || $mismatchQuantity > 0) {
-                    $message .= ' Rusak: '.number_format($damagedQuantity).'; tidak sesuai: '.number_format($mismatchQuantity).' — tidak ditambahkan ke stok.';
+                    $message .= ' Rusak: '.number_format($damagedQuantity).'; tidak sesuai: '.number_format($mismatchQuantity).' â€” tidak ditambahkan ke stok.';
                 }
                 if ($photoUploads) {
                     $message .= ' Foto bukti: '.count($photoUploads).' file tersimpan.';
@@ -726,7 +726,7 @@ class WarehouseActions
                         'referensi' => 'Stok awal dari katalog', 'satuan_transaksi' => $unit,
                     ]);
                 }
-                record_warehouse_activity($pdo, $warehouseId, 'item_created', 'barang', $itemId, $code.' · '.$name, 'Barang dibuat dengan stok awal '.$initialStock.' '.$unit.'.');
+                record_warehouse_activity($pdo, $warehouseId, 'item_created', 'barang', $itemId, $code.' Â· '.$name, 'Barang dibuat dengan stok awal '.$initialStock.' '.$unit.'.');
                 $pdo->commit();
                 flash($initialStock > 0 ? 'Barang ditambahkan. Stok awal Gudang Pusat dan mutasinya sudah dicatat.' : 'Barang ditambahkan ke katalog dengan stok awal nol.');
             } elseif ($aksi === 'barang_ubah') {
@@ -785,7 +785,7 @@ class WarehouseActions
                         'tujuan_keluar' => $isIncrease ? null : 'internal', 'satuan_transaksi' => $unit,
                     ]);
                 }
-                record_warehouse_activity($pdo, $warehouseId, 'item_updated', 'barang', $itemId, $code.' · '.$name, 'Data barang diperbarui. Stok pusat: '.$currentStock.' menjadi '.$targetStock.'.');
+                record_warehouse_activity($pdo, $warehouseId, 'item_updated', 'barang', $itemId, $code.' Â· '.$name, 'Data barang diperbarui. Stok pusat: '.$currentStock.' menjadi '.$targetStock.'.');
                 $pdo->commit();
                 flash($unitChanged
                     ? 'Data barang diperbarui. Angka stok dan jumlah yang sedang berjalan tetap; semuanya sekarang memakai satuan baru. Mutasi lama tetap memakai satuan saat dicatat.'
@@ -804,7 +804,7 @@ class WarehouseActions
                         throw new RuntimeException('Barang tidak ditemukan atau sudah aktif.');
                     }
                     $pdo->prepare('UPDATE barang SET aktif=1 WHERE id=?')->execute([$itemId]);
-                    record_warehouse_activity($pdo, $centerId($pdo), 'item_activated', 'barang', $itemId, $item['kode'].' · '.$item['nama'], 'Barang diaktifkan kembali.');
+                    record_warehouse_activity($pdo, $centerId($pdo), 'item_activated', 'barang', $itemId, $item['kode'].' Â· '.$item['nama'], 'Barang diaktifkan kembali.');
                     flash('Barang diaktifkan kembali.');
                 } elseif ($aksi === 'barang_hapus') {
                     $pdo->beginTransaction();
@@ -830,7 +830,7 @@ class WarehouseActions
                         throw new RuntimeException('Stok tersedia atau barang dalam perjalanan masih ada di gudang.');
                     }
                     $pdo->prepare('UPDATE barang SET aktif=0 WHERE id=?')->execute([$itemId]);
-                    record_warehouse_activity($pdo, $centerId($pdo), 'item_deactivated', 'barang', $itemId, $item['kode'].' · '.$item['nama'], 'Barang dinonaktifkan dari katalog.');
+                    record_warehouse_activity($pdo, $centerId($pdo), 'item_deactivated', 'barang', $itemId, $item['kode'].' Â· '.$item['nama'], 'Barang dinonaktifkan dari katalog.');
                     $pdo->commit();
                     flash('Barang dinonaktifkan dari katalog.');
                 } else {
@@ -863,7 +863,7 @@ class WarehouseActions
                     $pdo->prepare('INSERT INTO riwayat_hapus_barang (barang_id,user_id,stok_saat_dihapus,catatan) VALUES (?,?,?,?)')
                         ->execute([$itemId, user()['id'], $stockTotal, $note]);
                     $pdo->prepare('UPDATE barang SET aktif=0 WHERE id=?')->execute([$itemId]);
-                    record_warehouse_activity($pdo, $centerId($pdo), 'item_archived', 'barang', $itemId, $item['kode'].' · '.$item['nama'], $note);
+                    record_warehouse_activity($pdo, $centerId($pdo), 'item_archived', 'barang', $itemId, $item['kode'].' Â· '.$item['nama'], $note);
                     $pdo->commit();
                     flash('Barang diarsipkan; katalog dan seluruh riwayat tetap disimpan.');
                 }
@@ -1018,269 +1018,6 @@ class WarehouseActions
             flash($message, 'error');
         }
         go($returnUrl);
-
-    }
-
-    public function aksi_pembelian()
-    {
-        $post = request()->post();
-        $queryInput = request()->query();
-        $uploads = warehouse_uploads();
-        $server = ['REQUEST_METHOD' => request()->method(), 'CONTENT_LENGTH' => request()->server('CONTENT_LENGTH', 0)];
-        if ($server['REQUEST_METHOD'] !== 'POST') {
-            if (user() && in_array(user()['role'] ?? '', ['admin_pusat', 'admin_gudang', 'manager'], true)) {
-                go('dashboard.php');
-            }
-            go('purchasing.php');
-        }
-        check_csrf();
-        require_role('admin_pusat', 'admin_gudang', 'purchasing');
-        $pdo = db();
-        $action = is_string($post['aksi'] ?? null) ? $post['aksi'] : '';
-        $positiveInt = static function (mixed $value): int {
-            return is_string($value) && ctype_digit($value) ? (int) $value : 0;
-        };
-        $text = static fn (string $key): string => is_string($post[$key] ?? null) ? trim($post[$key]) : '';
-        $textLength = static function (string $value): int {
-            $length = preg_match_all('/./us', $value);
-
-            return $length === false ? PHP_INT_MAX : $length;
-        };
-        $returnUrl = user()['role'] === 'purchasing' ? 'purchasing.php#permintaan' : 'dashboard.php#permintaan-pembelian';
-
-        try {
-            if ($action === 'permintaan_simpan') {
-                require_role('admin_pusat', 'admin_gudang');
-                $itemId = $positiveInt($post['barang_id'] ?? null);
-                $quantity = $positiveInt($post['jumlah'] ?? null);
-                $note = $text('catatan');
-                if ($itemId < 1 || $quantity < 1 || $quantity > 4294967295 || $textLength($note) > 2000) {
-                    throw new RuntimeException('Barang, jumlah, atau catatan permintaan tidak valid.');
-                }
-                $pdo->beginTransaction();
-                $itemQuery = $pdo->prepare('SELECT id FROM barang WHERE id=? AND aktif=1 FOR UPDATE');
-                $itemQuery->execute([$itemId]);
-                if (! $itemQuery->fetchColumn()) {
-                    throw new RuntimeException('Barang tidak ditemukan atau sudah nonaktif.');
-                }
-                $pdo->prepare("INSERT INTO permintaan_pembelian (user_id,barang_id,jumlah,catatan,status) VALUES (?,?,?,?,'menunggu')")
-                    ->execute([user()['id'], $itemId, $quantity, $note ?: null]);
-                $requestId = (int) $pdo->lastInsertId();
-                $pdo->prepare("INSERT INTO purchasing_notifications (recipient_id,permintaan_pembelian_id) SELECT id,? FROM users WHERE role='purchasing' AND aktif=1")
-                    ->execute([$requestId]);
-                $pdo->commit();
-                flash('Permintaan pembelian dikirim kepada Purchasing untuk diproses.');
-            } elseif ($action === 'permintaan_setujui' || $action === 'permintaan_tolak') {
-                require_role('purchasing');
-                $requestId = $positiveInt($post['permintaan_id'] ?? null);
-                if ($requestId < 1) {
-                    throw new RuntimeException('Permintaan pembelian tidak ditemukan.');
-                }
-                $status = $action === 'permintaan_setujui' ? 'disetujui' : 'ditolak';
-                $pdo->beginTransaction();
-                $requestQuery = $pdo->prepare('SELECT id,user_id,barang_id,status FROM permintaan_pembelian WHERE id=? FOR UPDATE');
-                $requestQuery->execute([$requestId]);
-                $request = $requestQuery->fetch();
-                if (! $request || $request['status'] !== 'menunggu') {
-                    throw new RuntimeException('Permintaan sudah diproses atau tidak ditemukan.');
-                }
-                if ((int) $request['user_id'] === (int) user()['id']) {
-                    throw new RuntimeException('Anda tidak dapat memutuskan permintaan pembelian sendiri.');
-                }
-                if ($status === 'disetujui') {
-                    $itemQuery = $pdo->prepare('SELECT id FROM barang WHERE id=? AND aktif=1 FOR UPDATE');
-                    $itemQuery->execute([(int) $request['barang_id']]);
-                    if (! $itemQuery->fetchColumn()) {
-                        throw new RuntimeException('Barang sudah nonaktif dan tidak dapat disetujui.');
-                    }
-                }
-                $update = $pdo->prepare("UPDATE permintaan_pembelian SET status=?,diproses_oleh=?,diproses_pada=NOW() WHERE id=? AND status='menunggu' AND user_id<>?");
-                $update->execute([$status, user()['id'], $requestId, user()['id']]);
-                if ($update->rowCount() !== 1) {
-                    throw new RuntimeException('Permintaan berubah atau sudah diproses. Muat ulang halaman.');
-                }
-                if ($status === 'disetujui') {
-                    app(WarehouseNotifications::class)->purchaseApproved($pdo, $requestId, (int) $request['user_id']);
-                }
-                $pdo->commit();
-                flash($status === 'disetujui' ? 'Permintaan pembelian disetujui oleh Purchasing. Stok tidak berubah.' : 'Permintaan pembelian ditolak oleh Purchasing. Stok tidak berubah.');
-            } else {
-                throw new RuntimeException('Aksi permintaan pembelian tidak dikenal.');
-            }
-        } catch (HttpResponseException $error) {
-            throw $error;
-        } catch (Throwable $error) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            $message = $error instanceof PDOException ? 'Perubahan gagal disimpan. Periksa data dan struktur database.' : $error->getMessage();
-            flash($message, 'error');
-        }
-        go($returnUrl);
-
-    }
-
-    public function aksi_pengguna()
-    {
-        $post = request()->post();
-        $queryInput = request()->query();
-        $uploads = warehouse_uploads();
-        $server = ['REQUEST_METHOD' => request()->method(), 'CONTENT_LENGTH' => request()->server('CONTENT_LENGTH', 0)];
-        require_role('super_admin');
-        if ($server['REQUEST_METHOD'] !== 'POST') {
-            go('super_admin.php');
-        }
-        check_csrf();
-
-        $pdo = db();
-        $text = static fn (string $key): string => is_string($post[$key] ?? null) ? trim($post[$key]) : '';
-        $textLength = static function (string $value): int {
-            $length = preg_match_all('/./us', $value);
-
-            return $length === false ? PHP_INT_MAX : $length;
-        };
-        $roles = [
-            'pengguna' => 'Pengguna',
-            'admin_pusat' => 'Admin Pusat',
-            'admin_gudang' => 'Admin Gudang Proyek',
-            'manager' => 'Manajer',
-            'purchasing' => 'Purchasing',
-            'super_admin' => 'Super Admin',
-        ];
-        $action = $text('aksi');
-
-        try {
-            if (! in_array($action, ['buat', 'simpan'], true)) {
-                throw new RuntimeException('Aksi pengelolaan akun tidak dikenal.');
-            }
-            $name = $text('nama');
-            $email = strtolower($text('email'));
-            $role = $text('role');
-            $activeInput = $post['aktif'] ?? null;
-            $warehouseInput = $post['gudang_id'] ?? '';
-            $password = is_string($post['password'] ?? null) ? $post['password'] : '';
-            $userId = $action === 'simpan' ? (is_string($post['user_id'] ?? null) && ctype_digit($post['user_id']) ? (int) $post['user_id'] : 0) : 0;
-            $active = is_string($activeInput) && in_array($activeInput, ['0', '1'], true) ? (int) $activeInput : -1;
-
-            if ($name === '' || $textLength($name) > 120 || ! filter_var($email, FILTER_VALIDATE_EMAIL) || $textLength($email) > 190) {
-                throw new RuntimeException('Nama dan email harus diisi dengan format yang benar.');
-            }
-            if (! isset($roles[$role]) || $active < 0) {
-                throw new RuntimeException('Peran atau status akun tidak valid.');
-            }
-            if ($action === 'buat' && in_array($role, ['pengguna', 'super_admin'], true)) {
-                throw new RuntimeException('Role Pengguna dan Super Admin tidak tersedia saat membuat akun. Untuk Super Admin, ubah role akun yang sudah ada.');
-            }
-            if ($action === 'buat' && (strlen($password) < 8 || strlen($password) > 200)) {
-                throw new RuntimeException('Kata sandi awal harus berisi 8 sampai 200 karakter.');
-            }
-            if ($action === 'simpan' && $userId < 1) {
-                throw new RuntimeException('ID akun tidak valid.');
-            }
-            if ($action === 'simpan' && $userId === (int) user()['id'] && ($role !== 'super_admin' || $active !== 1)) {
-                throw new RuntimeException('Anda tidak dapat mengganti peran atau menonaktifkan akun sendiri.');
-            }
-
-            $warehouseId = null;
-            if ($role === 'admin_gudang') {
-                $warehouseId = is_string($warehouseInput) && ctype_digit($warehouseInput) ? (int) $warehouseInput : 0;
-                if ($warehouseId < 1) {
-                    throw new RuntimeException('Pilih gudang proyek aktif untuk akun Admin Gudang.');
-                }
-                $warehouseQuery = $pdo->prepare("SELECT id FROM gudang WHERE id=? AND jenis='proyek' AND aktif=1 LIMIT 1");
-                $warehouseQuery->execute([$warehouseId]);
-                if (! $warehouseQuery->fetchColumn()) {
-                    throw new RuntimeException('Gudang proyek yang dipilih tidak aktif atau tidak ditemukan.');
-                }
-            } elseif ($warehouseInput !== '' && $warehouseInput !== null) {
-                throw new RuntimeException('Hanya role Admin Gudang Proyek yang dapat ditautkan ke gudang.');
-            }
-
-            if ($action === 'buat') {
-                $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-                if ($passwordHash === false) {
-                    throw new RuntimeException('Kata sandi tidak dapat diproses.');
-                }
-                $pdo->beginTransaction();
-                $insert = $pdo->prepare('INSERT INTO users (nama,email,password_hash,role,gudang_id,aktif) VALUES (?,?,?,?,?,?)');
-                $insert->execute([$name, $email, $passwordHash, $role, $warehouseId, $active]);
-                $newUserId = (int) $pdo->lastInsertId();
-                record_user_management_audit($pdo, $newUserId, $name, $email, 'akun_dibuat', 'Akun dibuat dengan role '.$roles[$role].' dan status '.($active ? 'Aktif' : 'Nonaktif').'.');
-                $pdo->commit();
-                flash('Akun baru berhasil dibuat.');
-            } else {
-                $pdo->beginTransaction();
-                $lockedAdmins = array_map('intval', $pdo->query("SELECT id FROM users WHERE role='super_admin' AND aktif=1 FOR UPDATE")->fetchAll(PDO::FETCH_COLUMN));
-                $find = $pdo->prepare('SELECT id,nama,email,role,gudang_id,aktif FROM users WHERE id=? FOR UPDATE');
-                $find->execute([$userId]);
-                $current = $find->fetch();
-                if (! $current) {
-                    throw new RuntimeException('Akun yang akan diubah tidak ditemukan.');
-                }
-
-                $roleChanged = $current['role'] !== $role;
-                $statusChanged = (int) $current['aktif'] !== $active;
-                if ($current['role'] === 'super_admin' && ($roleChanged || ((int) $current['aktif'] === 1 && $active === 0))) {
-                    $remainingAdmins = array_filter($lockedAdmins, static fn (int $id): bool => $id !== $userId);
-                    if (count($remainingAdmins) < 1) {
-                        throw new RuntimeException('Akun Super Admin aktif terakhir tidak dapat dinonaktifkan atau kehilangan rolenya.');
-                    }
-                }
-
-                $profileChanges = [];
-                if ($current['nama'] !== $name) {
-                    $profileChanges[] = 'Nama: '.$current['nama'].' → '.$name;
-                }
-                if ($current['email'] !== $email) {
-                    $profileChanges[] = 'Email: '.$current['email'].' → '.$email;
-                }
-                if ((int) ($current['gudang_id'] ?? 0) !== (int) ($warehouseId ?? 0)) {
-                    $profileChanges[] = 'Pemetaan gudang diperbarui.';
-                }
-                if ($password !== '' && (strlen($password) < 12 || strlen($password) > 200)) {
-                    throw new RuntimeException('Kata sandi baru harus berisi 12 sampai 200 karakter.');
-                }
-
-                $values = [$name, $email, $role, $warehouseId, $active];
-                $passwordHash = null;
-                if ($password !== '') {
-                    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-                    if ($passwordHash === false) {
-                        throw new RuntimeException('Kata sandi tidak dapat diproses.');
-                    }
-                    $values[] = $passwordHash;
-                }
-                $values[] = $userId;
-                $sql = 'UPDATE users SET nama=?,email=?,role=?,gudang_id=?,aktif=?'.($passwordHash !== null ? ',password_hash=?' : '').' WHERE id=?';
-                $pdo->prepare($sql)->execute($values);
-
-                if ($roleChanged) {
-                    record_user_management_audit($pdo, $userId, $name, $email, 'role_diubah', 'Role diubah dari '.$roles[$current['role']].' menjadi '.$roles[$role].'.');
-                }
-                if ($statusChanged) {
-                    record_user_management_audit($pdo, $userId, $name, $email, $active ? 'akun_diaktifkan' : 'akun_dinonaktifkan', 'Status akun diubah dari '.((int) $current['aktif'] ? 'Aktif' : 'Nonaktif').' menjadi '.($active ? 'Aktif' : 'Nonaktif').'.');
-                }
-                if ($password !== '') {
-                    $profileChanges[] = 'Kata sandi diperbarui.';
-                }
-                if ($profileChanges) {
-                    record_user_management_audit($pdo, $userId, $name, $email, 'akun_diperbarui', implode(' ', $profileChanges));
-                }
-                $pdo->commit();
-                flash($roleChanged || $statusChanged || $profileChanges ? 'Perubahan akun berhasil disimpan.' : 'Tidak ada perubahan pada akun.');
-            }
-        } catch (HttpResponseException $error) {
-            throw $error;
-        } catch (Throwable $error) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-            $message = $error instanceof PDOException
-                ? 'Perubahan akun gagal disimpan. Pastikan email belum digunakan dan skema database sudah diperbarui.'
-                : $error->getMessage();
-            flash($message, 'error');
-        }
-        go('super_admin.php#akun');
 
     }
 }

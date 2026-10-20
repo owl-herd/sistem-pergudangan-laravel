@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Services\WarehouseStockAdjustment;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use PDOException;
+use Throwable;
 
 class WarehouseStockAdjustmentController extends Controller
 {
@@ -22,11 +25,22 @@ class WarehouseStockAdjustmentController extends Controller
             }],
         ]);
 
-        $adjustment->adjust(
-            (int) $validated['barang_id'],
-            (int) $validated['stok_fisik'],
-            trim($validated['alasan'])
-        );
+        try {
+            $adjustment->adjust(
+                (int) $validated['barang_id'],
+                (int) $validated['stok_fisik'],
+                trim($validated['alasan'])
+            );
+        } catch (HttpResponseException $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            $message = $exception instanceof PDOException
+                ? 'Penyesuaian stok gagal disimpan. Periksa data dan struktur database.'
+                : $exception->getMessage();
+            flash($message, 'error');
+
+            return redirect('dashboard.php#stok');
+        }
 
         flash('Hasil stock opname disimpan. Selisih stok dan aktivitasnya tercatat.');
 

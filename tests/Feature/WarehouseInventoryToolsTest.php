@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Symfony\Component\Process\Process;
 use Tests\TestCase;
 
 class WarehouseInventoryToolsTest extends TestCase
@@ -128,6 +129,112 @@ class WarehouseInventoryToolsTest extends TestCase
 
         $this->assertSame(0, (int) DB::table('stock_adjustments')->where('barang_id', $item)->value('selisih'));
         $this->assertSame(0, DB::table('transaksi_gudang')->where('barang_id', $item)->count());
+    }
+
+    public function test_stocktake_accepts_zero_and_records_the_full_decrease(): void
+    {
+        $warehouse = $this->warehouse();
+        $actor = $this->actor('admin_gudang', $warehouse);
+        $item = $this->item();
+        DB::table('stok_gudang')->insert(['gudang_id' => $warehouse, 'barang_id' => $item, 'stok' => 4]);
+
+        $this->submit($actor, '/stocktake.php', [
+            'barang_id' => (string) $item,
+            'stok_fisik' => '0',
+            'alasan' => 'Rak kosong saat dihitung',
+        ])->assertRedirect('dashboard.php#stok');
+
+        $this->assertSame(0, (int) DB::table('stok_gudang')->where('gudang_id', $warehouse)->where('barang_id', $item)->value('stok'));
+        $this->assertSame(-4, (int) DB::table('stock_adjustments')->where('barang_id', $item)->value('selisih'));
+        $this->assertSame(4, (int) DB::table('transaksi_gudang')->where('barang_id', $item)->value('jumlah'));
+    }
+
+    public function test_invalid_stocktake_values_do_not_change_inventory(): void
+    {
+        $warehouse = $this->warehouse();
+        $actor = $this->actor('admin_gudang', $warehouse);
+        $item = $this->item();
+        DB::table('stok_gudang')->insert(['gudang_id' => $warehouse, 'barang_id' => $item, 'stok' => 6]);
+
+        $this->submit($actor, '/stocktake.php', [
+            'barang_id' => (string) $item,
+            'stok_fisik' => '-1',
+            'alasan' => 'Jumlah tidak valid',
+        ])->assertSessionHasErrors('stok_fisik');
+
+        $this->submit($actor, '/stocktake.php', [
+            'barang_id' => (string) $item,
+            'stok_fisik' => '5',
+            'alasan' => '   ',
+        ])->assertSessionHasErrors('alasan');
+
+        $this->assertSame(6, (int) DB::table('stok_gudang')->where('gudang_id', $warehouse)->where('barang_id', $item)->value('stok'));
+        $this->assertSame(0, DB::table('stock_adjustments')->where('barang_id', $item)->count());
+        $this->assertSame(0, DB::table('transaksi_gudang')->where('barang_id', $item)->count());
+    }
+
+    public function test_stocktake_rejects_inactive_items_without_partial_changes(): void
+    {
+        $warehouse = $this->warehouse();
+        $actor = $this->actor('admin_gudang', $warehouse);
+        $item = $this->item();
+        DB::table('barang')->where('id', $item)->update(['aktif' => 0]);
+
+        $this->submit($actor, '/stocktake.php', [
+            'barang_id' => (string) $item,
+            'stok_fisik' => '3',
+            'alasan' => 'Barang nonaktif',
+        ])->assertRedirect('dashboard.php#stok')->assertSessionHas('warehouse_flash');
+
+        $this->assertSame(0, DB::table('stok_gudang')->where('gudang_id', $warehouse)->where('barang_id', $item)->count());
+        $this->assertSame(0, DB::table('stock_adjustments')->where('barang_id', $item)->count());
+        $this->assertSame(0, DB::table('transaksi_gudang')->where('barang_id', $item)->count());
+    }
+
+    public function test_stocktake_rejects_missing_items_without_partial_changes(): void
+    {
+        $warehouse = $this->warehouse();
+        $actor = $this->actor('admin_gudang', $warehouse);
+
+        $this->submit($actor, '/stocktake.php', [
+            'barang_id' => '9223372036854775807',
+            'stok_fisik' => '3',
+            'alasan' => 'Barang tidak ada',
+        ])->assertRedirect('dashboard.php#stok')->assertSessionHas('warehouse_flash');
+
+        $this->assertSame(0, DB::table('stock_adjustments')->where('gudang_id', $warehouse)->count());
+        $this->assertSame(0, DB::table('transaksi_gudang')->where('gudang_id', $warehouse)->count());
+    }
+
+    public function test_concurrent_stocktakes_keep_the_stock_and_audit_trail_consistent(): void
+    {
+        $item = $this->item();
+        $warehouse = (int) DB::table('gudang')->where('kode', 'PUSAT')->value('id');
+        $this->assertGreaterThan(0, $warehouse);
+        DB::table('stok_gudang')->insert(['gudang_id' => $warehouse, 'barang_id' => $item, 'stok' => 10]);
+
+        $workers = [7, 13];
+        $processes = array_map(
+            fn (int $count): Process => new Process(
+                [PHP_BINARY, base_path('tests/Support/stocktake-worker.php'), (string) $item, (string) $count],
+                base_path(),
+                ['APP_ENV' => 'testing']
+            ),
+            $workers
+        );
+        foreach ($processes as $process) {
+            $process->start();
+        }
+        foreach ($processes as $process) {
+            $process->wait();
+            $this->assertTrue($process->isSuccessful(), $process->getErrorOutput().' '.$process->getOutput());
+        }
+
+        $finalStock = (int) DB::table('stok_gudang')->where('gudang_id', $warehouse)->where('barang_id', $item)->value('stok');
+        $this->assertContains($finalStock, $workers);
+        $this->assertSame(2, DB::table('stock_adjustments')->where('barang_id', $item)->count());
+        $this->assertSame($finalStock - 10, (int) DB::table('stock_adjustments')->where('barang_id', $item)->sum('selisih'));
+        $this->assertSame(2, count(DB::table('stock_adjustments')->where('barang_id', $item)->whereIn('stok_fisik', $workers)->get()));
     }
 
     public function test_manager_cannot_change_stock_but_can_download_filtered_csv(): void

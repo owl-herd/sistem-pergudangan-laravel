@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\WarehousePages;
+use App\Services\WarehouseReports;
 
 class PageController extends Controller
 {
@@ -36,12 +37,12 @@ class PageController extends Controller
         return $pages->index();
     }
 
-    public function laporan_pdf(WarehousePages $pages)
+    public function laporan_pdf(WarehouseReports $pages)
     {
         return $pages->laporan_pdf();
     }
 
-    public function laporan_csv(WarehousePages $pages)
+    public function laporan_csv(WarehouseReports $pages)
     {
         return $pages->laporan_csv();
     }

@@ -118,6 +118,52 @@ class WarehouseMigrationTest extends TestCase
         $this->actingAs($this->actor('admin_pusat'))->get('/super_admin.php')->assertForbidden();
     }
 
+    public function test_role_scoped_pages_deny_every_role_outside_the_allowed_set(): void
+    {
+        $pageRoles = [
+            '/dashboard.php' => ['admin_pusat', 'admin_gudang', 'manager'],
+            '/aktivitas.php' => ['super_admin', 'admin_pusat', 'admin_gudang', 'manager'],
+            '/purchasing.php' => ['purchasing'],
+            '/super_admin.php' => ['super_admin'],
+            '/penerimaan_pembelian.php' => ['admin_pusat', 'admin_gudang'],
+            '/detail_penerimaan_pembelian.php?id=1' => ['purchasing', 'manager'],
+            '/bukti_persetujuan.php?id=1' => ['purchasing', 'manager', 'admin_pusat', 'admin_gudang'],
+            '/foto_penerimaan_pembelian.php?id=1' => ['purchasing', 'manager', 'admin_pusat', 'admin_gudang'],
+            '/surat_jalan.php?id=1' => ['admin_pusat', 'admin_gudang', 'manager'],
+            '/laporan_pdf.php?jenis_laporan=stok' => ['manager'],
+            '/laporan_csv.php?jenis_laporan=stok' => ['manager'],
+        ];
+        $roles = ['super_admin', 'admin_pusat', 'admin_gudang', 'manager', 'purchasing'];
+
+        foreach ($pageRoles as $path => $allowedRoles) {
+            foreach ($roles as $role) {
+                if (in_array($role, $allowedRoles, true)) {
+                    continue;
+                }
+
+                $this->actingAs($this->actor($role))->get($path)->assertForbidden();
+            }
+        }
+    }
+
+    public function test_user_administration_action_is_reserved_for_super_admin(): void
+    {
+        $this->actingAs($this->actor('manager'))
+            ->post('/aksi_pengguna.php', ['aksi' => 'buat'])
+            ->assertForbidden();
+    }
+
+    public function test_legacy_action_endpoints_reject_roles_outside_their_domain(): void
+    {
+        $this->actingAs($this->actor('manager'))
+            ->submit('/aksi_pembelian.php', ['aksi' => 'permintaan_setujui'])
+            ->assertForbidden();
+
+        $this->actingAs($this->actor('purchasing'))
+            ->submit('/aksi_admin.php', ['aksi' => 'barang_simpan'])
+            ->assertForbidden();
+    }
+
     public function test_nonactive_account_is_denied(): void
     {
         $id = DB::table('users')->insertGetId(['nama' => 'Uji nonaktif', 'email' => 'disabled-'.bin2hex(random_bytes(6)).'@example.test', 'password_hash' => Hash::make(bin2hex(random_bytes(12))), 'role' => 'manager', 'aktif' => 0]);
@@ -408,11 +454,11 @@ class WarehouseMigrationTest extends TestCase
         $one->wait();
         $two->wait();
         $this->assertTrue($one->isSuccessful(), $one->getErrorOutput());
-        $this->assertTrue($two->isSuccessful(),$two->getErrorOutput());
-        $codes = DB::table('barang')->whereIn('nama',[$marker.'-1', $marker.'-2'])->pluck('kode')->all();
-        $this->assertCount(2,$codes,$one->getOutput().' / '.$two->getOutput().' / '.DB::connection()->getDatabaseName());
-        $this->assertCount(2,array_unique($codes));
+        $this->assertTrue($two->isSuccessful(), $two->getErrorOutput());
+        $codes = DB::table('barang')->whereIn('nama', [$marker.'-1', $marker.'-2'])->pluck('kode')->all();
+        $this->assertCount(2, $codes, $one->getOutput().' / '.$two->getOutput().' / '.DB::connection()->getDatabaseName());
+        $this->assertCount(2, array_unique($codes));
         sort($codes);
-        $this->assertSame((int) substr($codes[0],3) + 1,(int) substr($codes[1],3));
+        $this->assertSame((int) substr($codes[0], 3) + 1, (int) substr($codes[1], 3));
     }
 }
