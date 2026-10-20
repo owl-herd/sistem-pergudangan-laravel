@@ -20,7 +20,7 @@ class WarehouseStockAdjustmentController extends Controller
             'stok_fisik' => ['required', 'integer', 'min:0', 'max:4294967295'],
             'alasan' => ['required', 'string', 'max:1000', static function (string $attribute, mixed $value, \Closure $fail): void {
                 if (trim((string) $value) === '') {
-                    $fail('Alasan stock opname wajib diisi.');
+                    $fail('Alasan pemeriksaan dan penyesuaian stok wajib diisi.');
                 }
             }],
         ]);
@@ -42,7 +42,7 @@ class WarehouseStockAdjustmentController extends Controller
             return redirect('dashboard.php#stok');
         }
 
-        flash('Hasil stock opname disimpan. Selisih stok dan aktivitasnya tercatat.');
+        flash('Hasil pemeriksaan dan penyesuaian stok disimpan. Selisih stok dan aktivitasnya tercatat.');
 
         return redirect('dashboard.php#stok');
     }

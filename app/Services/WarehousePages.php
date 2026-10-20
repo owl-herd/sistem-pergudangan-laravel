@@ -182,7 +182,7 @@ class WarehousePages
         if ($role === 'manager') {
             $requestConditions[] = 'EXISTS (SELECT 1 FROM gudang g WHERE g.id=p.gudang_tujuan_id AND g.aktif=1)';
         }
-        $requestSql = "SELECT p.id,p.tanggal,p.status,p.catatan,p.nama_proyek,ga.nama gudang_asal,gt.nama gudang_tujuan,u.nama peminta,GROUP_CONCAT(CONCAT(b.kode,' Â· ',b.nama,' Ã— ',dp.jumlah,' ',b.satuan) ORDER BY b.kode SEPARATOR ', ') barang,MAX(pe.id) pengiriman_id,MAX(pe.status) status_pengiriman FROM permintaan p JOIN users u ON u.id=p.user_id LEFT JOIN gudang ga ON ga.id=p.gudang_asal_id LEFT JOIN gudang gt ON gt.id=p.gudang_tujuan_id LEFT JOIN detail_permintaan dp ON dp.permintaan_id=p.id LEFT JOIN barang b ON b.id=dp.barang_id LEFT JOIN pengiriman pe ON pe.permintaan_id=p.id WHERE ";
+        $requestSql = "SELECT p.id,p.tanggal,p.status,p.catatan,p.nama_proyek,ga.nama gudang_asal,gt.nama gudang_tujuan,u.nama peminta,GROUP_CONCAT(CONCAT(b.kode,' · ',b.nama,' × ',dp.jumlah,' ',b.satuan) ORDER BY b.kode SEPARATOR ', ') barang,MAX(pe.id) pengiriman_id,MAX(pe.status) status_pengiriman FROM permintaan p JOIN users u ON u.id=p.user_id LEFT JOIN gudang ga ON ga.id=p.gudang_asal_id LEFT JOIN gudang gt ON gt.id=p.gudang_tujuan_id LEFT JOIN detail_permintaan dp ON dp.permintaan_id=p.id LEFT JOIN barang b ON b.id=dp.barang_id LEFT JOIN pengiriman pe ON pe.permintaan_id=p.id WHERE ";
         $requestSql .= implode(' AND ', $requestConditions)." GROUP BY p.id ORDER BY FIELD(p.status,'diajukan','diproses','selesai','ditolak'),p.tanggal DESC";
         if ($role !== 'manager') {
             $requestSql .= ' LIMIT 100';
@@ -226,7 +226,7 @@ class WarehousePages
             $remaining = max(0, $ordered - $received);
             $status = $remaining === 0 ? 'Semua jumlah tercatat' : ($received > 0 ? 'Diterima sebagian' : 'Belum diterima');
 
-            return $status.' Â· diperiksa '.number_format($received).'/'.number_format($ordered).'; layak stok '.number_format($ready).'; sisa '.number_format($remaining);
+            return $status.' · diperiksa '.number_format($received).'/'.number_format($ordered).'; layak stok '.number_format($ready).'; sisa '.number_format($remaining);
         };
 
         $legacyRequests = [];
@@ -670,7 +670,7 @@ class WarehousePages
         }
         $endExclusive = (new DateTimeImmutable($end))->modify('+1 day')->format('Y-m-d');
         $eventType = $queryInput['jenis'] ?? 'semua';
-        $eventTypes = ['semua' => 'Semua aktivitas', 'mutasi' => 'Mutasi stok', 'stocktake' => 'Stock opname', 'katalog' => 'Perubahan katalog'];
+        $eventTypes = ['semua' => 'Semua aktivitas', 'mutasi' => 'Mutasi stok', 'stocktake' => 'Pemeriksaan dan Penyesuaian Stok', 'katalog' => 'Perubahan katalog'];
         if ($role === 'super_admin') {
             $eventTypes['akun'] = 'Pengelolaan akun';
         }
@@ -702,7 +702,7 @@ class WarehousePages
             $query = $pdo->prepare("SELECT a.id,a.dibuat_pada,a.actor_name,g.nama gudang,a.event_key,a.subject_label,a.details FROM warehouse_activity_logs a LEFT JOIN gudang g ON g.id=a.gudang_id WHERE a.dibuat_pada>=? AND a.dibuat_pada<? AND a.subject_type='barang' AND ".$scope.' ORDER BY a.dibuat_pada DESC,a.id DESC LIMIT 200');
             $query->execute(array_merge($baseParams, $scopeParams));
             foreach ($query->fetchAll() as $row) {
-                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['dibuat_pada'], 'aktor' => $row['actor_name'], 'gudang' => $row['gudang'] ?: 'â€”', 'aktivitas' => $eventLabel[$row['event_key']] ?? $row['event_key'], 'subjek' => $row['subject_label'], 'detail' => $row['details'], 'sumber' => 'katalog'];
+                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['dibuat_pada'], 'aktor' => $row['actor_name'], 'gudang' => $row['gudang'] ?: '—', 'aktivitas' => $eventLabel[$row['event_key']] ?? $row['event_key'], 'subjek' => $row['subject_label'], 'detail' => $row['details'], 'sumber' => 'katalog'];
             }
         }
         if ($eventType === 'semua' || $eventType === 'stocktake') {
@@ -710,7 +710,7 @@ class WarehousePages
             $query = $pdo->prepare('SELECT s.id,s.dibuat_pada,s.nama_petugas,g.nama gudang,b.kode,b.nama,s.stok_sebelum,s.stok_fisik,s.selisih,s.alasan FROM stock_adjustments s JOIN gudang g ON g.id=s.gudang_id JOIN barang b ON b.id=s.barang_id WHERE s.dibuat_pada>=? AND s.dibuat_pada<? AND '.$scope.' ORDER BY s.dibuat_pada DESC,s.id DESC LIMIT 200');
             $query->execute(array_merge($baseParams, $scopeParams));
             foreach ($query->fetchAll() as $row) {
-                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['dibuat_pada'], 'aktor' => $row['nama_petugas'], 'gudang' => $row['gudang'], 'aktivitas' => 'Stock opname', 'subjek' => $row['kode'].' Â· '.$row['nama'], 'detail' => 'Sistem '.$row['stok_sebelum'].'; fisik '.$row['stok_fisik'].'; selisih '.$row['selisih'].'. Alasan: '.$row['alasan'], 'sumber' => 'stocktake'];
+                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['dibuat_pada'], 'aktor' => $row['nama_petugas'], 'gudang' => $row['gudang'], 'aktivitas' => 'Pemeriksaan dan Penyesuaian Stok', 'subjek' => $row['kode'].' · '.$row['nama'], 'detail' => 'Sistem '.$row['stok_sebelum'].'; fisik '.$row['stok_fisik'].'; selisih '.$row['selisih'].'. Alasan: '.$row['alasan'], 'sumber' => 'stocktake'];
             }
         }
         if ($eventType === 'semua' || $eventType === 'mutasi') {
@@ -719,7 +719,7 @@ class WarehousePages
             $query->execute(array_merge($baseParams, $scopeParams));
             $movementLabels = ['masuk' => 'Barang masuk', 'keluar' => 'Barang keluar', 'kembali' => 'Barang kembali', 'pemakaian' => 'Pemakaian proyek'];
             foreach ($query->fetchAll() as $row) {
-                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['tanggal'], 'aktor' => $row['nama_petugas'] ?: $row['operator'] ?: 'â€”', 'gudang' => $row['gudang'], 'aktivitas' => $movementLabels[$row['jenis']] ?? $row['jenis'], 'subjek' => $row['kode'].' Â· '.$row['barang'], 'detail' => number_format((int) $row['jumlah']).' '.$row['satuan'].($row['referensi'] ? '. '.$row['referensi'] : ''), 'sumber' => 'mutasi'];
+                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['tanggal'], 'aktor' => $row['nama_petugas'] ?: $row['operator'] ?: '—', 'gudang' => $row['gudang'], 'aktivitas' => $movementLabels[$row['jenis']] ?? $row['jenis'], 'subjek' => $row['kode'].' · '.$row['barang'], 'detail' => number_format((int) $row['jumlah']).' '.$row['satuan'].($row['referensi'] ? '. '.$row['referensi'] : ''), 'sumber' => 'mutasi'];
             }
         }
         if ($role === 'super_admin' && ($eventType === 'semua' || $eventType === 'akun')) {
@@ -734,7 +734,7 @@ class WarehousePages
                 'akun_diaktifkan' => 'Akun diaktifkan',
             ];
             foreach ($query->fetchAll() as $row) {
-                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['dibuat_pada'], 'aktor' => $row['pelaku_nama'], 'gudang' => 'â€”', 'aktivitas' => $accountEventLabels[$row['aksi']] ?? $row['aksi'], 'subjek' => $row['sasaran_nama'], 'detail' => $row['detail'], 'sumber' => 'akun'];
+                $rows[] = ['id' => (int) $row['id'], 'dibuat_pada' => $row['dibuat_pada'], 'aktor' => $row['pelaku_nama'], 'gudang' => '—', 'aktivitas' => $accountEventLabels[$row['aksi']] ?? $row['aksi'], 'subjek' => $row['sasaran_nama'], 'detail' => $row['detail'], 'sumber' => 'akun'];
             }
         }
         usort($rows, static fn (array $left, array $right): int => strcmp((string) $right['dibuat_pada'], (string) $left['dibuat_pada']) ?: ($right['id'] <=> $left['id']));

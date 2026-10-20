@@ -13,7 +13,7 @@
 <body class="warehouse-dashboard-top warehouse-dashboard-shell">
 <nav class="navbar navbar-expand-xl navbar-dark dashboard-navbar dashboard-top-navigation sticky-top shadow-sm" style="background: var(--brand-blue-dark);" aria-label="Navigasi purchasing">
   <div class="container-fluid px-lg-4">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="purchasing.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small>Pusat kendali Â· Purchasing</small></span></a>
+    <a class="navbar-brand d-flex align-items-center gap-2" href="purchasing.php"><img src="assets/logo.png" alt=""><span class="dashboard-brand-copy"><span class="fw-bold">Trikasa Energi Tama</span><small>Pusat kendali · Purchasing</small></span></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#purchasingNavigation" aria-controls="purchasingNavigation" aria-expanded="false" aria-label="Buka navigasi purchasing"><span class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse" id="purchasingNavigation">
       <ul class="navbar-nav me-auto ms-lg-4 gap-lg-2 section-nav py-2 py-lg-0" aria-label="Bagian purchasing">

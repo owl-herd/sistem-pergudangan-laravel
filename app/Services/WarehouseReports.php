@@ -62,11 +62,11 @@ class WarehouseReports
             $stockQuery = $pdo->query('SELECT g.id gudang_id,g.nama gudang,b.kode,b.nama,b.satuan,b.stok_minimum,COALESCE(s.stok,0) stok FROM gudang g CROSS JOIN barang b LEFT JOIN stok_gudang s ON s.gudang_id=g.id AND s.barang_id=b.id WHERE g.aktif=1 AND b.aktif=1 ORDER BY g.nama,b.kode');
             $stockRows = $stockQuery->fetchAll();
 
-            $requestQuery = $pdo->prepare("SELECT p.id,p.tanggal,p.status,p.nama_proyek,gt.nama gudang,u.nama peminta,GROUP_CONCAT(CONCAT(b.kode,' Â· ',b.nama,' Ã— ',dp.jumlah,' ',b.satuan) ORDER BY b.kode SEPARATOR ', ') barang FROM permintaan p JOIN users u ON u.id=p.user_id LEFT JOIN gudang gt ON gt.id=p.gudang_tujuan_id LEFT JOIN detail_permintaan dp ON dp.permintaan_id=p.id LEFT JOIN barang b ON b.id=dp.barang_id WHERE p.gudang_tujuan_id IS NOT NULL AND p.tanggal>=? AND p.tanggal<? AND gt.aktif=1 GROUP BY p.id ORDER BY p.tanggal DESC,p.id DESC");
+            $requestQuery = $pdo->prepare("SELECT p.id,p.tanggal,p.status,p.nama_proyek,gt.nama gudang,u.nama peminta,GROUP_CONCAT(CONCAT(b.kode,' · ',b.nama,' × ',dp.jumlah,' ',b.satuan) ORDER BY b.kode SEPARATOR ', ') barang FROM permintaan p JOIN users u ON u.id=p.user_id LEFT JOIN gudang gt ON gt.id=p.gudang_tujuan_id LEFT JOIN detail_permintaan dp ON dp.permintaan_id=p.id LEFT JOIN barang b ON b.id=dp.barang_id WHERE p.gudang_tujuan_id IS NOT NULL AND p.tanggal>=? AND p.tanggal<? AND gt.aktif=1 GROUP BY p.id ORDER BY p.tanggal DESC,p.id DESC");
             $requestQuery->execute([$start, $endExclusive]);
             $requestRows = $requestQuery->fetchAll();
 
-            $shipmentQuery = $pdo->prepare("SELECT pe.id,pe.status,pe.dikirim_pada,ga.nama gudang_asal,gt.nama gudang_tujuan,us.nama pengirim,ur.nama penerima,GROUP_CONCAT(CONCAT(b.kode,' Â· ',b.nama,': ',d.jumlah_dikirim,' dikirim / ',COALESCE(d.jumlah_diterima,'belum dikonfirmasi'),' diterima ',b.satuan) ORDER BY b.kode SEPARATOR '; ') rincian FROM pengiriman pe JOIN gudang ga ON ga.id=pe.gudang_asal_id JOIN gudang gt ON gt.id=pe.gudang_tujuan_id JOIN users us ON us.id=pe.dikirim_oleh LEFT JOIN users ur ON ur.id=pe.diterima_oleh JOIN detail_pengiriman d ON d.pengiriman_id=pe.id JOIN barang b ON b.id=d.barang_id WHERE pe.dikirim_pada>=? AND pe.dikirim_pada<? AND ga.aktif=1 AND gt.aktif=1 GROUP BY pe.id ORDER BY pe.dikirim_pada DESC,pe.id DESC");
+            $shipmentQuery = $pdo->prepare("SELECT pe.id,pe.status,pe.dikirim_pada,ga.nama gudang_asal,gt.nama gudang_tujuan,us.nama pengirim,ur.nama penerima,GROUP_CONCAT(CONCAT(b.kode,' · ',b.nama,': ',d.jumlah_dikirim,' dikirim / ',COALESCE(d.jumlah_diterima,'belum dikonfirmasi'),' diterima ',b.satuan) ORDER BY b.kode SEPARATOR '; ') rincian FROM pengiriman pe JOIN gudang ga ON ga.id=pe.gudang_asal_id JOIN gudang gt ON gt.id=pe.gudang_tujuan_id JOIN users us ON us.id=pe.dikirim_oleh LEFT JOIN users ur ON ur.id=pe.diterima_oleh JOIN detail_pengiriman d ON d.pengiriman_id=pe.id JOIN barang b ON b.id=d.barang_id WHERE pe.dikirim_pada>=? AND pe.dikirim_pada<? AND ga.aktif=1 AND gt.aktif=1 GROUP BY pe.id ORDER BY pe.dikirim_pada DESC,pe.id DESC");
             $shipmentQuery->execute([$start, $endExclusive]);
             $shipmentRows = $shipmentQuery->fetchAll();
 
@@ -145,7 +145,7 @@ class WarehouseReports
                 foreach ($rows as $index => $values) {
                     $prepared = $this->reportPrepareRow($columns, $values);
                     if ($cursor - $prepared['height'] < 45) {
-                        $beginPage($title.' Â· lanjutan', false);
+                        $beginPage($title.' · lanjutan', false);
                         $cursor = $this->reportTableHeader($commands, $cursor, $columns, $navy, $white, $grid);
                     }
                     $cursor = $this->reportDrawRow($commands, $cursor, $columns, $prepared, $index, $white, $light, $grid, $textColor);
@@ -188,13 +188,13 @@ class WarehouseReports
             }
 
             $additionColumns = [['Tanggal', 82, 18], ['Proyek', 112, 22], ['Barang', 152, 30], ['Jumlah', 62, 12], ['Keterangan', 242, 48], ['Petugas', 120, 22]];
-            $additionValues = array_map(static fn (array $row): array => [date('d M Y H:i', strtotime($row['ditambahkan_pada'])), $row['gudang'], trim($row['kode'].' Â· '.$row['barang']), number_format((int) $row['jumlah']).' '.$row['satuan'], $row['catatan'], $row['petugas']], $additionRows);
+            $additionValues = array_map(static fn (array $row): array => [date('d M Y H:i', strtotime($row['ditambahkan_pada'])), $row['gudang'], trim($row['kode'].' · '.$row['barang']), number_format((int) $row['jumlah']).' '.$row['satuan'], $row['catatan'], $row['petugas']], $additionRows);
             if ($reportType === 'semua' || $reportType === 'penambahan') {
                 $drawSection('Penambahan barang proyek', $additionColumns, $additionValues);
             }
 
             $returnColumns = [['Dikirim', 82, 18], ['Proyek', 102, 20], ['Peralatan', 126, 26], ['Jumlah', 58, 12], ['Catatan kondisi', 226, 44], ['Petugas', 112, 22], ['Status', 64, 14]];
-            $returnValues = array_map(static fn (array $row): array => [date('d M Y H:i', strtotime($row['dikirim_pada'])), $row['gudang'], trim($row['kode'].' Â· '.$row['barang']), number_format((int) $row['jumlah']).' '.$row['satuan'], $row['catatan_kondisi'], trim($row['pengirim'].($row['penerima'] ? ' / '.$row['penerima'] : '')), $row['status'] === 'menunggu_diterima' ? 'Menunggu admin pusat' : 'Diterima'], $returnRows);
+            $returnValues = array_map(static fn (array $row): array => [date('d M Y H:i', strtotime($row['dikirim_pada'])), $row['gudang'], trim($row['kode'].' · '.$row['barang']), number_format((int) $row['jumlah']).' '.$row['satuan'], $row['catatan_kondisi'], trim($row['pengirim'].($row['penerima'] ? ' / '.$row['penerima'] : '')), $row['status'] === 'menunggu_diterima' ? 'Menunggu admin pusat' : 'Diterima'], $returnRows);
             if ($reportType === 'semua' || $reportType === 'retur') {
                 $drawSection('Riwayat kondisi pengembalian peralatan', $returnColumns, $returnValues);
             }
@@ -202,14 +202,14 @@ class WarehouseReports
             $movementLabels = ['masuk' => 'Barang masuk', 'keluar' => 'Dikirim keluar', 'kembali' => 'Barang kembali', 'pemakaian' => 'Pemakaian proyek'];
             $movementColumns = [['Tanggal', 82, 18], ['Jenis', 88, 20], ['Gudang', 112, 22], ['Barang', 142, 30], ['Jumlah', 58, 12], ['Asal / tujuan', 112, 23], ['Keterangan', 118, 25], ['Petugas', 58, 12]];
             $movementValues = array_map(function (array $row) use ($movementLabels): array {
-                $note = trim(($row['nomor_transaksi'] ? 'No. '.$row['nomor_transaksi'].' Â· ' : '').($row['referensi'] ?: '').($row['nama_supplier'] ? ' Â· Supplier: '.$row['nama_supplier'] : ''));
+                $note = trim(($row['nomor_transaksi'] ? 'No. '.$row['nomor_transaksi'].' · ' : '').($row['referensi'] ?: '').($row['nama_supplier'] ? ' · Supplier: '.$row['nama_supplier'] : ''));
                 $isAdjustment = $row['referensi'] === 'Penyesuaian stok melalui katalog' || str_starts_with((string) $row['referensi'], 'Stock opname #');
                 $type = $isAdjustment ? ($row['jenis'] === 'masuk' ? 'Penyesuaian stok (+)' : 'Penyesuaian stok (-)') : ($movementLabels[$row['jenis']] ?? $row['jenis']);
                 if ($row['jenis'] === 'kembali' && str_starts_with((string) $row['referensi'], 'Peralatan kembali dari proyek #')) {
                     $type = 'Retur peralatan';
                 }
 
-                return [date('d M Y H:i', strtotime($row['tanggal'])), $type, $row['gudang'], trim($row['kode'].' Â· '.$row['barang']), number_format((int) $row['jumlah']).' '.$row['satuan'], ($row['gudang_asal'] ?: '-').' -> '.($row['gudang_tujuan'] ?: '-'), $note ?: '-', ($row['nama_petugas'] ?: $row['operator'] ?: '-')];
+                return [date('d M Y H:i', strtotime($row['tanggal'])), $type, $row['gudang'], trim($row['kode'].' · '.$row['barang']), number_format((int) $row['jumlah']).' '.$row['satuan'], ($row['gudang_asal'] ?: '-').' -> '.($row['gudang_tujuan'] ?: '-'), $note ?: '-', ($row['nama_petugas'] ?: $row['operator'] ?: '-')];
             }, $movementRows);
             if ($reportType === 'semua' || $reportType === 'mutasi') {
                 $drawSection('Penerimaan aktual dan pemakaian proyek', $movementColumns, $movementValues);
@@ -218,13 +218,13 @@ class WarehouseReports
             if ($reportType === 'semua' || $reportType === 'pembelian') {
                 $q = $pdo->prepare("SELECT r.id,r.tanggal,r.jumlah,r.status,b.kode,b.nama,b.satuan,u.nama peminta,COALESCE(g.nama,'Gudang Pusat') gudang FROM permintaan_pembelian r JOIN barang b ON b.id=r.barang_id JOIN users u ON u.id=r.user_id LEFT JOIN gudang g ON g.id=u.gudang_id WHERE r.tanggal>=? AND r.tanggal<? AND (u.role='admin_pusat' OR g.aktif=1) ORDER BY r.tanggal DESC,r.id DESC");
                 $q->execute([$start, $endExclusive]);
-                $values = array_map(static fn (array $r): array => ['#'.$r['id'], date('d M Y', strtotime($r['tanggal'])), $r['gudang'], $r['peminta'], $r['kode'].' Â· '.$r['nama'].' Ã— '.$r['jumlah'].' '.$r['satuan'], $r['status']], $q->fetchAll());
+                $values = array_map(static fn (array $r): array => ['#'.$r['id'], date('d M Y', strtotime($r['tanggal'])), $r['gudang'], $r['peminta'], $r['kode'].' · '.$r['nama'].' × '.$r['jumlah'].' '.$r['satuan'], $r['status']], $q->fetchAll());
                 $drawSection('Pengajuan pembelian', $requestColumns, $values);
             }
             if ($reportType === 'semua' || $reportType === 'penerimaan_pembelian') {
                 $q = $pdo->prepare('SELECT r.* FROM penerimaan_pembelian r JOIN gudang g ON g.id=r.gudang_id WHERE r.diterima_pada>=? AND r.diterima_pada<? AND g.aktif=1 ORDER BY r.diterima_pada DESC,r.id DESC');
                 $q->execute([$start, $endExclusive]);
-                $values = array_map(static fn (array $r): array => ['#'.$r['id'], date('d M Y', strtotime($r['diterima_pada'])), $r['nama_gudang'], $r['kode_barang'].' Â· '.$r['nama_barang'], $r['jumlah_layak'].' / '.$r['jumlah_rusak'].' / '.$r['jumlah_tidak_sesuai'], $r['nama_petugas']], $q->fetchAll());
+                $values = array_map(static fn (array $r): array => ['#'.$r['id'], date('d M Y', strtotime($r['diterima_pada'])), $r['nama_gudang'], $r['kode_barang'].' · '.$r['nama_barang'], $r['jumlah_layak'].' / '.$r['jumlah_rusak'].' / '.$r['jumlah_tidak_sesuai'], $r['nama_petugas']], $q->fetchAll());
                 $drawSection('Penerimaan pembelian', [['ID', 42, 8], ['Tanggal', 76, 16], ['Gudang', 122, 22], ['Barang', 260, 55], ['Layak / Rusak / Tidak sesuai', 160, 32], ['Petugas', 110, 22]], $values);
             }
 
@@ -337,17 +337,17 @@ class WarehouseReports
             }
         }
         if ($include('permintaan')) {
-            $query = $pdo->prepare("SELECT p.id,p.tanggal,p.status,gt.nama gudang,u.nama peminta,GROUP_CONCAT(CONCAT(b.kode,' Â· ',b.nama,' Ã— ',dp.jumlah,' ',b.satuan) ORDER BY b.kode SEPARATOR ', ') barang FROM permintaan p JOIN users u ON u.id=p.user_id LEFT JOIN gudang gt ON gt.id=p.gudang_tujuan_id LEFT JOIN detail_permintaan dp ON dp.permintaan_id=p.id LEFT JOIN barang b ON b.id=dp.barang_id WHERE p.gudang_tujuan_id IS NOT NULL AND p.tanggal>=? AND p.tanggal<? AND gt.aktif=1 GROUP BY p.id ORDER BY p.tanggal DESC,p.id DESC");
+            $query = $pdo->prepare("SELECT p.id,p.tanggal,p.status,gt.nama gudang,u.nama peminta,GROUP_CONCAT(CONCAT(b.kode,' · ',b.nama,' × ',dp.jumlah,' ',b.satuan) ORDER BY b.kode SEPARATOR ', ') barang FROM permintaan p JOIN users u ON u.id=p.user_id LEFT JOIN gudang gt ON gt.id=p.gudang_tujuan_id LEFT JOIN detail_permintaan dp ON dp.permintaan_id=p.id LEFT JOIN barang b ON b.id=dp.barang_id WHERE p.gudang_tujuan_id IS NOT NULL AND p.tanggal>=? AND p.tanggal<? AND gt.aktif=1 GROUP BY p.id ORDER BY p.tanggal DESC,p.id DESC");
             $query->execute([$start, $endExclusive]);
             foreach ($query->fetchAll() as $row) {
                 $append(['Permintaan barang', $row['id'], $row['tanggal'], $row['gudang'] ?: 'Arsip lama; lokasi tidak dipetakan', '', '', '', '', $row['status'], $row['peminta'], $row['barang']]);
             }
         }
         if ($include('pengiriman')) {
-            $query = $pdo->prepare("SELECT pe.id,pe.status,pe.dikirim_pada,ga.nama gudang_asal,gt.nama gudang_tujuan,us.nama pengirim,ur.nama penerima,GROUP_CONCAT(CONCAT(b.kode,' Â· ',b.nama,': ',d.jumlah_dikirim,' dikirim / ',COALESCE(d.jumlah_diterima,'belum dikonfirmasi'),' diterima ',b.satuan) ORDER BY b.kode SEPARATOR '; ') rincian FROM pengiriman pe JOIN gudang ga ON ga.id=pe.gudang_asal_id JOIN gudang gt ON gt.id=pe.gudang_tujuan_id JOIN users us ON us.id=pe.dikirim_oleh LEFT JOIN users ur ON ur.id=pe.diterima_oleh JOIN detail_pengiriman d ON d.pengiriman_id=pe.id JOIN barang b ON b.id=d.barang_id WHERE pe.dikirim_pada>=? AND pe.dikirim_pada<? AND ga.aktif=1 AND gt.aktif=1 GROUP BY pe.id ORDER BY pe.dikirim_pada DESC,pe.id DESC");
+            $query = $pdo->prepare("SELECT pe.id,pe.status,pe.dikirim_pada,ga.nama gudang_asal,gt.nama gudang_tujuan,us.nama pengirim,ur.nama penerima,GROUP_CONCAT(CONCAT(b.kode,' · ',b.nama,': ',d.jumlah_dikirim,' dikirim / ',COALESCE(d.jumlah_diterima,'belum dikonfirmasi'),' diterima ',b.satuan) ORDER BY b.kode SEPARATOR '; ') rincian FROM pengiriman pe JOIN gudang ga ON ga.id=pe.gudang_asal_id JOIN gudang gt ON gt.id=pe.gudang_tujuan_id JOIN users us ON us.id=pe.dikirim_oleh LEFT JOIN users ur ON ur.id=pe.diterima_oleh JOIN detail_pengiriman d ON d.pengiriman_id=pe.id JOIN barang b ON b.id=d.barang_id WHERE pe.dikirim_pada>=? AND pe.dikirim_pada<? AND ga.aktif=1 AND gt.aktif=1 GROUP BY pe.id ORDER BY pe.dikirim_pada DESC,pe.id DESC");
             $query->execute([$start, $endExclusive]);
             foreach ($query->fetchAll() as $row) {
-                $append(['Pengiriman dan penerimaan', $row['id'], $row['dikirim_pada'], $row['gudang_asal'].' â†’ '.$row['gudang_tujuan'], '', '', '', '', str_replace('_', ' ', $row['status']), $row['penerima'] ?: $row['pengirim'], $row['rincian']]);
+                $append(['Pengiriman dan penerimaan', $row['id'], $row['dikirim_pada'], $row['gudang_asal'].' → '.$row['gudang_tujuan'], '', '', '', '', str_replace('_', ' ', $row['status']), $row['penerima'] ?: $row['pengirim'], $row['rincian']]);
             }
         }
         if ($include('pembelian')) {
@@ -388,7 +388,7 @@ class WarehouseReports
                 if ($row['jenis'] === 'kembali' && str_starts_with((string) $row['referensi'], 'Peralatan kembali dari proyek #')) {
                     $type = 'Retur peralatan';
                 }
-                $details = trim(($row['nomor_transaksi'] ? 'No. '.$row['nomor_transaksi'].' Â· ' : '').($row['referensi'] ?: '').($row['nama_supplier'] ? ' Â· Supplier: '.$row['nama_supplier'] : ''));
+                $details = trim(($row['nomor_transaksi'] ? 'No. '.$row['nomor_transaksi'].' · ' : '').($row['referensi'] ?: '').($row['nama_supplier'] ? ' · Supplier: '.$row['nama_supplier'] : ''));
                 $append(['Mutasi stok', $row['nomor_transaksi'] ?: '', $row['tanggal'], $row['gudang'], $row['kode'], $row['barang'], (int) $row['jumlah'], $row['satuan'], $type, $row['nama_petugas'] ?: $row['operator'], $details]);
             }
         }

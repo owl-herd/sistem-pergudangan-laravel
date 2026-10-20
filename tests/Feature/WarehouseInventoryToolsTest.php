@@ -271,6 +271,6 @@ class WarehouseInventoryToolsTest extends TestCase
             'alasan' => 'Hitung ulang',
         ])->assertRedirect();
 
-        $this->actingAs($manager)->get('/aktivitas.php?jenis=stocktake')->assertOk()->assertSee('Stock opname')->assertSee('Hitung ulang');
+        $this->actingAs($manager)->get('/aktivitas.php?jenis=stocktake')->assertOk()->assertSee('Pemeriksaan dan Penyesuaian Stok')->assertSee('Hitung ulang');
     }
 }

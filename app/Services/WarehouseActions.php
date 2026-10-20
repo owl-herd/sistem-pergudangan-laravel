@@ -360,7 +360,7 @@ class WarehouseActions
                 $remaining -= $totalReceived;
                 $message = 'Penerimaan #'.$receiptId.' berhasil dicatat. '.number_format($goodQuantity).' '.(string) $item['satuan'].' layak masuk stok.';
                 if ($damagedQuantity > 0 || $mismatchQuantity > 0) {
-                    $message .= ' Rusak: '.number_format($damagedQuantity).'; tidak sesuai: '.number_format($mismatchQuantity).' â€” tidak ditambahkan ke stok.';
+                    $message .= ' Rusak: '.number_format($damagedQuantity).'; tidak sesuai: '.number_format($mismatchQuantity).' — tidak ditambahkan ke stok.';
                 }
                 if ($photoUploads) {
                     $message .= ' Foto bukti: '.count($photoUploads).' file tersimpan.';
@@ -726,7 +726,7 @@ class WarehouseActions
                         'referensi' => 'Stok awal dari katalog', 'satuan_transaksi' => $unit,
                     ]);
                 }
-                record_warehouse_activity($pdo, $warehouseId, 'item_created', 'barang', $itemId, $code.' Â· '.$name, 'Barang dibuat dengan stok awal '.$initialStock.' '.$unit.'.');
+                record_warehouse_activity($pdo, $warehouseId, 'item_created', 'barang', $itemId, $code.' · '.$name, 'Barang dibuat dengan stok awal '.$initialStock.' '.$unit.'.');
                 $pdo->commit();
                 flash($initialStock > 0 ? 'Barang ditambahkan. Stok awal Gudang Pusat dan mutasinya sudah dicatat.' : 'Barang ditambahkan ke katalog dengan stok awal nol.');
             } elseif ($aksi === 'barang_ubah') {
@@ -785,7 +785,7 @@ class WarehouseActions
                         'tujuan_keluar' => $isIncrease ? null : 'internal', 'satuan_transaksi' => $unit,
                     ]);
                 }
-                record_warehouse_activity($pdo, $warehouseId, 'item_updated', 'barang', $itemId, $code.' Â· '.$name, 'Data barang diperbarui. Stok pusat: '.$currentStock.' menjadi '.$targetStock.'.');
+                record_warehouse_activity($pdo, $warehouseId, 'item_updated', 'barang', $itemId, $code.' · '.$name, 'Data barang diperbarui. Stok pusat: '.$currentStock.' menjadi '.$targetStock.'.');
                 $pdo->commit();
                 flash($unitChanged
                     ? 'Data barang diperbarui. Angka stok dan jumlah yang sedang berjalan tetap; semuanya sekarang memakai satuan baru. Mutasi lama tetap memakai satuan saat dicatat.'
@@ -804,7 +804,7 @@ class WarehouseActions
                         throw new RuntimeException('Barang tidak ditemukan atau sudah aktif.');
                     }
                     $pdo->prepare('UPDATE barang SET aktif=1 WHERE id=?')->execute([$itemId]);
-                    record_warehouse_activity($pdo, $centerId($pdo), 'item_activated', 'barang', $itemId, $item['kode'].' Â· '.$item['nama'], 'Barang diaktifkan kembali.');
+                    record_warehouse_activity($pdo, $centerId($pdo), 'item_activated', 'barang', $itemId, $item['kode'].' · '.$item['nama'], 'Barang diaktifkan kembali.');
                     flash('Barang diaktifkan kembali.');
                 } elseif ($aksi === 'barang_hapus') {
                     $pdo->beginTransaction();
@@ -830,7 +830,7 @@ class WarehouseActions
                         throw new RuntimeException('Stok tersedia atau barang dalam perjalanan masih ada di gudang.');
                     }
                     $pdo->prepare('UPDATE barang SET aktif=0 WHERE id=?')->execute([$itemId]);
-                    record_warehouse_activity($pdo, $centerId($pdo), 'item_deactivated', 'barang', $itemId, $item['kode'].' Â· '.$item['nama'], 'Barang dinonaktifkan dari katalog.');
+                    record_warehouse_activity($pdo, $centerId($pdo), 'item_deactivated', 'barang', $itemId, $item['kode'].' · '.$item['nama'], 'Barang dinonaktifkan dari katalog.');
                     $pdo->commit();
                     flash('Barang dinonaktifkan dari katalog.');
                 } else {
@@ -863,7 +863,7 @@ class WarehouseActions
                     $pdo->prepare('INSERT INTO riwayat_hapus_barang (barang_id,user_id,stok_saat_dihapus,catatan) VALUES (?,?,?,?)')
                         ->execute([$itemId, user()['id'], $stockTotal, $note]);
                     $pdo->prepare('UPDATE barang SET aktif=0 WHERE id=?')->execute([$itemId]);
-                    record_warehouse_activity($pdo, $centerId($pdo), 'item_archived', 'barang', $itemId, $item['kode'].' Â· '.$item['nama'], $note);
+                    record_warehouse_activity($pdo, $centerId($pdo), 'item_archived', 'barang', $itemId, $item['kode'].' · '.$item['nama'], $note);
                     $pdo->commit();
                     flash('Barang diarsipkan; katalog dan seluruh riwayat tetap disimpan.');
                 }

@@ -119,10 +119,10 @@ class WarehouseUserAdministrationActions
 
                 $profileChanges = [];
                 if ($current['nama'] !== $name) {
-                    $profileChanges[] = 'Nama: '.$current['nama'].' â†’ '.$name;
+                    $profileChanges[] = 'Nama: '.$current['nama'].' → '.$name;
                 }
                 if ($current['email'] !== $email) {
-                    $profileChanges[] = 'Email: '.$current['email'].' â†’ '.$email;
+                    $profileChanges[] = 'Email: '.$current['email'].' → '.$email;
                 }
                 if ((int) ($current['gudang_id'] ?? 0) !== (int) ($warehouseId ?? 0)) {
                     $profileChanges[] = 'Pemetaan gudang diperbarui.';

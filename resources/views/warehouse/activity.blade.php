@@ -20,7 +20,7 @@
   <section class="mb-4">
     <span class="section-kicker">Jejak perubahan</span>
     <h1 class="h2 fw-bold text-primary-emphasis mt-1">Aktivitas gudang</h1>
-    <p class="text-secondary mb-0">Riwayat stok, hasil stock opname, perubahan katalog, dan—untuk Super Admin—pengelolaan akun. Daftar dibatasi hingga 200 aktivitas terbaru.</p>
+    <p class="text-secondary mb-0">Riwayat stok, hasil pemeriksaan dan penyesuaian stok, perubahan katalog, dan—untuk Super Admin—pengelolaan akun. Daftar dibatasi hingga 200 aktivitas terbaru.</p>
   </section>
   <section class="app-card card shadow-sm mb-4">
     <div class="card-body p-3 p-lg-4">
