@@ -27,6 +27,8 @@ jobs:
           --health-timeout=5s
           --health-retries=10
     env:
+      APP_ENV: testing
+      APP_KEY: base64:VGVzdE9ubHlBcHBsaWNhdGlvbktleUZvckNJLTIwMjY=
       DB_CONNECTION: mysql
       DB_HOST: 127.0.0.1
       DB_PORT: 3306
@@ -89,6 +91,43 @@ jobs:
           vendor/bin/pint --test "${php_files[@]}"
       - name: Jalankan test Laravel
         run: php artisan test
+
+      - name: Siapkan Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Pasang dependensi Playwright
+        run: npm ci
+      - name: Pasang browser Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Jalankan server Laravel di loopback dan tunggu kesiapan
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup php artisan serve --host=127.0.0.1 --port=8001 > /tmp/laravel-e2e.log 2>&1 &
+          echo $! > /tmp/laravel-e2e.pid
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8001/login.php > /dev/null; then
+              echo "Laravel siap di loopback setelah percobaan ke-${attempt}."
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/laravel-e2e.log
+          exit 1
+      - name: Jalankan tes Playwright
+        env:
+          CI: true
+          E2E_BASE_URL: http://127.0.0.1:8001
+        run: npx playwright test
+      - name: Unggah laporan Playwright
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
 
   frontend:
     name: Build frontend
