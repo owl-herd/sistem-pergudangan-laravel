@@ -68,7 +68,11 @@ class WarehouseMigrationTest extends TestCase
     public function test_home_and_login_keep_the_existing_interface(): void
     {
         $this->get('/')->assertOk()->assertSee('Trikasa Energi Tama');
-        $this->get('/login.php')->assertOk()->assertSee('Masuk ke akun Anda');
+        $this->get('/login.php')
+            ->assertOk()
+            ->assertSee('Masuk ke akun Anda')
+            ->assertSee('password-visibility-toggle')
+            ->assertSee('Tampilkan kata sandi');
     }
 
     public function test_guests_are_redirected(): void
@@ -453,12 +457,25 @@ class WarehouseMigrationTest extends TestCase
         $two->start();
         $one->wait();
         $two->wait();
-        $this->assertTrue($one->isSuccessful(), $one->getErrorOutput());
-        $this->assertTrue($two->isSuccessful(), $two->getErrorOutput());
+        $workerOutput = static fn (Process $worker): string => 'stdout: '.$worker->getOutput().' stderr: '.$worker->getErrorOutput();
+        $this->assertTrue($one->isSuccessful(), 'Worker 1 '.$workerOutput($one));
+        $this->assertTrue($two->isSuccessful(), 'Worker 2 '.$workerOutput($two));
+        $firstResult = json_decode($one->getOutput(), true);
+        $secondResult = json_decode($two->getOutput(), true);
+        $diagnostics = $workerOutput($one).' / '.$workerOutput($two).' / '.DB::connection()->getDatabaseName();
+        $this->assertIsArray($firstResult, 'Worker 1 harus mengeluarkan JSON. '.$diagnostics);
+        $this->assertIsArray($secondResult, 'Worker 2 harus mengeluarkan JSON. '.$diagnostics);
+        $this->assertSame('sistem_pergudangan_laravel_test', $firstResult['database'] ?? null, $diagnostics);
+        $this->assertSame('sistem_pergudangan_laravel_test', $secondResult['database'] ?? null, $diagnostics);
+        $this->assertSame($marker.'-1', $firstResult['name'] ?? null, $diagnostics);
+        $this->assertSame($marker.'-2', $secondResult['name'] ?? null, $diagnostics);
         $codes = DB::table('barang')->whereIn('nama', [$marker.'-1', $marker.'-2'])->pluck('kode')->all();
-        $this->assertCount(2, $codes, $one->getOutput().' / '.$two->getOutput().' / '.DB::connection()->getDatabaseName());
-        $this->assertCount(2, array_unique($codes));
+        $this->assertCount(2, $codes, $diagnostics);
+        $this->assertCount(2, array_unique($codes), $diagnostics);
+        $reportedCodes = [$firstResult['code'] ?? null, $secondResult['code'] ?? null];
+        sort($reportedCodes);
         sort($codes);
-        $this->assertSame((int) substr($codes[0], 3) + 1, (int) substr($codes[1], 3));
+        $this->assertSame($reportedCodes, $codes, $diagnostics);
+        $this->assertSame((int) substr($codes[0], 3) + 1, (int) substr($codes[1], 3), $diagnostics);
     }
 }
