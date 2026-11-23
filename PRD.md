@@ -3,10 +3,10 @@
 ## Navigasi Dokumentasi
 
 - [AGENTS](AGENTS.md) — aturan wajib proyek
-- [Architecture](architecture.md) — rancangan teknis sistem
-- [Skill Guide](skill.md) — panduan kerja agent/developer
-- [Workflow](workflow.md) — alur kerja pengembangan
-- [TODO](todo.md) — daftar pekerjaan dan status
+- [Architecture](ARCHITECTURE.md) — rancangan teknis sistem
+- [Skill Guide](SKILL.md) — panduan kerja agent/developer
+- [Workflow](WORKFLOW.md) — alur kerja pengembangan
+- [TODO](TODO.md) — daftar pekerjaan dan status
 
 ## 1. Informasi Dokumen
 

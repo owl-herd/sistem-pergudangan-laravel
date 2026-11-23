@@ -3,10 +3,10 @@
 ## Navigasi Dokumentasi
 
 - [AGENTS](AGENTS.md) — aturan wajib proyek
-- [PRD](prd.md) — kebutuhan dan tujuan produk
-- [Skill Guide](skill.md) — panduan kerja agent/developer
-- [Workflow](workflow.md) — alur kerja pengembangan
-- [TODO](todo.md) — daftar pekerjaan dan status
+- [PRD](PRD.md) — kebutuhan dan tujuan produk
+- [Skill Guide](SKILL.md) — panduan kerja agent/developer
+- [Workflow](WORKFLOW.md) — alur kerja pengembangan
+- [TODO](TODO.md) — daftar pekerjaan dan status
 
 ## 1. Status Dokumen
 
